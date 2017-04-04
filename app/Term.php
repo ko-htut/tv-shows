@@ -30,5 +30,13 @@ class Term extends Authenticatable {
     public function termType() {
         return $this->belogsTo('App\TermType', 'term_type_id');
     }
+    
+    public function translations() {
+        return $this->hasMany('App\TermTranslation');
+    }
+
+    public function translation($lang = 'en') {
+        return $this->hasMany('App\TermTranslation', 'term_id', 'id')->where('lang', '=', $lang)->first();
+    }
 
 }

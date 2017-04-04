@@ -5,6 +5,8 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Lang;
+use DB;
+
 //use App\Config;
 class Show extends Authenticatable {
 
@@ -38,15 +40,26 @@ class Show extends Authenticatable {
         return $this->hasMany('App\ShowTranslation', 'show_id', 'id')->where('lang', '=', $lang)->first();
     }
 
-
     public function banner() {//TODO::MORPH BY
-       return $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'Show')->first();
+        return $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->first(); //
     }
 
-    public function episodes() {
-        return $this->hasMany('App\Episode', 'show_id', 'id')->where('season_number', '>', 0);
+    public function allEpisodes() {
+        return $this->hasMany('App\Episode')->where('season_number', '>', 0);
     }
-    
+
+    public function seasonEpisodes($season) {
+        return $this->hasMany('App\Episode')->where('season_number', '=', $season);
+    }
+
+    public function lastSeason() {
+        return $this->hasMany('App\Episode')->max('season_number');
+    }
+
+    public function genres() {
+        return $this->morphToMany('App\Term', 'model', 'terms_to_models', null, null);
+    }
+
     public function views($periond = null) {
         
     }

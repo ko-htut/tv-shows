@@ -48,7 +48,7 @@ class ShowsController extends Controller {
     
 
     public function import() {
-
+     
         ini_set('max_execution_time', 60 * 60 * 2);
         //$langs_xml = file_get_contents("http://thetvdb.com/api/5EA3012696C40059/languages.xml");
 
@@ -91,15 +91,15 @@ class ShowsController extends Controller {
                     $showId = \App\Show::firstOrCreate(array_filter($show))->id;
 
                     //Options
-                    Utils::insertOption('status', 'select', $lang, trim($xml->Series->Status), $showId, 'Show');
-                    Utils::insertOption('network', 'select', $lang, trim($xml->Series->Network), $showId, 'Show');
-                    Utils::insertOption('content_rating', 'select', $lang, trim($xml->Series->ContentRating), $showId, 'Show');
+                    Utils::insertOption('status', 'select', $lang, trim($xml->Series->Status), $showId, 'App\Show');
+                    Utils::insertOption('network', 'select', $lang, trim($xml->Series->Network), $showId, 'App\Show');
+                    Utils::insertOption('content_rating', 'select', $lang, trim($xml->Series->ContentRating), $showId, 'App\Show');
 
                     //Terms
                     $terms = array_filter(explode('|', trim($xml->Series->Genre)));
                     if (!empty($terms)) {
                         foreach ($terms as $term) {
-                            Utils::insertTerm('genre', $term, 'en', $showId, 'Show');
+                            Utils::insertTerm('genre', $term, 'en', $showId, 'App\Show');
                         }
                     }
 
@@ -107,7 +107,7 @@ class ShowsController extends Controller {
                     $fanart = trim($xml->Series->fanart);
                     if (!empty($fanart)) {
                         $fanart = 'http://thetvdb.com/banners/' . $fanart;
-                        $arr = ['type' => 'fanart', 'extension' => 'jpg', 'external_patch' => $fanart, 'model_id' => $showId, 'model_type' => 'Show'];
+                        $arr = ['type' => 'fanart', 'extension' => 'jpg', 'external_patch' => $fanart, 'model_id' => $showId, 'model_type' => 'App\Show'];
                         $file = File::firstOrCreate($arr);
                     }
 
@@ -140,7 +140,7 @@ class ShowsController extends Controller {
                         $thumb = trim($episode->filename);
                         if (!empty($thumb)) {
                             $thumb = 'http://thetvdb.com/banners/' . $thumb;
-                            $arr = ['type' => 'thumb', 'extension' => 'jpg', 'external_patch' => $thumb, 'model_id' => $episodeId, 'model_type' => 'Episode'];
+                            $arr = ['type' => 'thumb', 'extension' => 'jpg', 'external_patch' => $thumb, 'model_id' => $episodeId, 'model_type' => 'App\Episode'];
                             $file = File::firstOrCreate($arr);
                         }
 

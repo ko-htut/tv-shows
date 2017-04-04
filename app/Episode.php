@@ -49,7 +49,7 @@ class Episode extends Authenticatable {
     }
 
     public function thumb() {//TODO::MORPH BY
-        return $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'Episode')->first();
+        return $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Episode')->first();
     }
 
     public function views($periond = null) {

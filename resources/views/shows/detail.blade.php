@@ -9,9 +9,24 @@
 
 <div class="row">
     <ul class="collection">
-        @foreach ($show->episodes as $episode)
-        <li class="collection-item"><i>S{{ $episode->season_number }}E{{ $episode->episode_number }}</i> - <strong>{{ $episode->translation($lang)->title }}</strong></li>
+        @for ($i = 1; $i < $show->lastSeason()+1; $i++)
+            <li class="collection-item"><strong>Season {{ $i }}</strong></li>
+        @endfor
+    </ul>
+</div>
 
+<div class="row">
+    <ul class="collection">
+        @foreach ($show->allEpisodes as $episode)
+        <li class="collection-item"><i>S{{ $episode->season_number }}E{{ $episode->episode_number }}</i> - <strong>{{ $episode->translation($lang)->title }}</strong></li>
+        @endforeach  
+    </ul>
+</div>
+
+<div class="row">
+    <ul class="collection">
+        @foreach ($show->genres as $genre)
+            <li class="collection-item"><strong>{{ $genre->translation()->title }}</strong></li>
         @endforeach  
     </ul>
 </div>
