@@ -18,7 +18,7 @@ class ShowTranslation extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'show_id', 'lang', 'title', 'slug', 'content', 'tattos', 'meta_title', 'meta_description', 'active',
+        'show_id', 'lang', 'title', 'slug', 'content', 'meta_title', 'meta_description', 'active',
     ];
 
     /**

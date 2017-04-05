@@ -48,8 +48,12 @@ class Show extends Authenticatable {
         return $this->hasMany('App\Episode')->where('season_number', '>', 0);
     }
 
-    public function seasonEpisodes($season) {
-        return $this->hasMany('App\Episode')->where('season_number', '=', $season);
+    public function seasonEpisodes($season = null) {
+        return $this->hasMany('App\Episode')->where('season_number', '=', $season)->get();
+    }
+
+    public function seasonEpisodesCount($season = null) {
+        return $this->hasMany('App\Episode')->where('season_number', '=', $season)->count();
     }
 
     public function lastSeason() {
@@ -57,7 +61,23 @@ class Show extends Authenticatable {
     }
 
     public function genres() {
+        //$term_type_id = TermType::where('name', '=', 'genre')->first()->id;
         return $this->morphToMany('App\Term', 'model', 'terms_to_models', null, null);
+    }
+
+    public function status() {
+        $select_id = Select::where('title', '=', __FUNCTION__)->first()->id;
+        return $this->morphToMany('App\Option', 'model', 'options_to_models', null, null)->where('select_id', '=', $select_id)->first();
+    }
+
+    public function network() {
+        $select_id = Select::where('title', '=', __FUNCTION__)->first()->id;
+        return $this->morphToMany('App\Option', 'model', 'options_to_models', null, null)->where('select_id', '=', $select_id)->first();
+    }
+
+    public function content_rating() {
+        $select_id = Select::where('title', '=', __FUNCTION__)->first()->id;
+        return $this->morphToMany('App\Option', 'model', 'options_to_models', null, null)->where('select_id', '=', $select_id)->first();
     }
 
     public function views($periond = null) {

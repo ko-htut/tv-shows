@@ -20,6 +20,10 @@ use App\TermPivot;
  */
 class Utils {
 
+    public static function isAjax() {
+        return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ? true : false;
+    }
+
     public static function insertOption($title, $type, $lang, $value, $model_id, $mode_type) {
         $value = trim($value);
         if (!empty($value)) {

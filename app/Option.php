@@ -30,5 +30,16 @@ class Option extends Authenticatable {
     public function select() {
         return $this->belogsTo('App\Select');
     }
+    
+    public function translations() {
+        return $this->hasMany('App\OptionTranslation');
+    }
+
+    public function translation($lang = null) {
+        if ($lang == null) {
+            $lang = 'en';
+        }
+        return $this->hasMany('App\OptionTranslation', 'option_id', 'id')->where('lang', '=', $lang)->first();
+    }
 
 }

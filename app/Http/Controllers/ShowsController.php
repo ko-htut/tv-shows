@@ -17,14 +17,87 @@ use Cookie;
 use DB;
 use App\Functions\Utils;
 use Lang;
+use View;
 
 class ShowsController extends Controller {
 
     public function listing($lang = 'cs') {
-        $shows = Show::paginate(4);
-        return view('shows.listing', compact(['shows', 'lang']));
+
+        $shows = Show::paginate(6);
+        
+        $filter = [
+            'genres' => \App\Term::all(),
+            'networks' => \App\Option::where('select_id', '=', Select::where('title', '=', 'network')->first()->id)->get(),
+            'statuses' => \App\Option::where('select_id', '=', Select::where('title', '=', 'status')->first()->id)->get(),
+        ];
+
+
+        //Filter
+        if (Utils::isAjax()) {
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+
+            $shows = new Show;
+
+            //Terms
+            if (isset($_GET['genre'])) {
+                $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
+                $shows = $shows->whereIn('term_id', $_GET['genre']);
+            }
+
+            //Options
+            $optionsKeys = ['network', 'status'];
+            $options = [];
+            foreach ($optionsKeys as $key) {
+                if (isset($_GET[$key])) {
+                    $shows = $shows->join("options_to_models as $key", "$key.model_id", "=", "shows.id");
+                    $options = [];
+                    foreach ($_GET[$key] as $value) {
+                        $options[] = $value;
+                    }
+                    $shows = $shows->whereIn("$key.option_id", $options);
+                }
+            }
+            $shows = $shows->select('shows.*')->distinct();
+            $shows = $shows->paginate(6);
+
+            $view = View::make('shows.ajax.items', compact(['shows', 'lang']))->render();
+            $snippets = ['snippet-items' => $view];
+            print json_encode(['snippets' => $snippets]);
+            exit();
+        }
+
+        return view('shows.listing', compact(['filter', 'shows', 'lang']));
     }
-    
+
+    public function detailTranslate($lang, $slug) {
+
+        $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                ->where('slug', '=', $slug)
+                ->where('lang', '=', $lang)
+                ->select('shows.*')// just to avoid fetching anything from joined table
+                ->first();
+
+
+        if (Utils::isAjax()) {
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+
+            if ($_GET['season'] > 0) {
+                $season = $show->seasonEpisodes($_GET['season']);
+                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
+                $snippets = ['snippet-season-' . $_GET['season'] => $view];
+                print json_encode(['snippets' => $snippets]);
+                exit();
+            }
+        }
+
+        return view('shows.detail', compact(['show', 'lang']));
+    }
+
+    //TODO COPY
     public function detail($slug) {
         $lang = "cs";
         $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
@@ -35,20 +108,8 @@ class ShowsController extends Controller {
         return view('shows.detail', compact(['show', 'lang']));
     }
 
-    
-    public function detailTranslate($lang, $slug) {
-        $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                ->where('slug', '=', $slug)
-                ->where('lang', '=', $lang)
-                ->select('shows.*')// just to avoid fetching anything from joined table
-                ->first();
-        return view('shows.detail', compact(['show', 'lang']));
-    }
-    
-    
-
     public function import() {
-     
+
         ini_set('max_execution_time', 60 * 60 * 2);
         //$langs_xml = file_get_contents("http://thetvdb.com/api/5EA3012696C40059/languages.xml");
 
