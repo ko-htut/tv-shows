@@ -21,54 +21,102 @@ use View;
 
 class ShowsController extends Controller {
 
+    public function search($query, $lang) {
+        $shows = new Show;
+        if (isset($query)) {
+            //Search
+            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
+            $shows = $shows->where('translation.title', 'LIKE', "%$query%");
+            $shows = $shows->where('translation.lang', '=', $lang); ////All translations
+            $shows = $shows->select('shows.*')->distinct();
+            $shows = $shows->paginate(100);
+        }
+        $result = null;
+        foreach ($shows as $show) {
+            $name = $show->translation($lang)->title;
+            $img = $show->banner()->external_patch;
+            $result[$name] = $img;
+        }
+
+
+        return json_encode($result);
+    }
+
     public function listing($lang = 'cs') {
 
-        $shows = Show::paginate(6);
-        
         $filter = [
             'genres' => \App\Term::all(),
             'networks' => \App\Option::where('select_id', '=', Select::where('title', '=', 'network')->first()->id)->get(),
             'statuses' => \App\Option::where('select_id', '=', Select::where('title', '=', 'status')->first()->id)->get(),
+            'runtime' => [
+                'min' => Show::min('runtime'),
+                'max' => Show::max('runtime'),
+            ],
         ];
 
+        $page = isset($_GET['page']) ? $_GET['page'] : 1;
+        $next_page = $page + 1;
+
+        $shows = new Show;
+        //Search
+        if (isset($_GET['search'])) {
+            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
+            $shows = $shows->where('translation.title', 'LIKE', "%{$_GET['search']}%");
+            $shows = $shows->where('translation.lang', '=', $lang); ////All translations
+        }
+        //Terms
+        if (isset($_GET['genre'])) {
+            $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
+            $shows = $shows->whereIn('term_id', $_GET['genre']);
+        }
+        //Options
+        $optionsKeys = ['network', 'status'];
+        $options = [];
+        foreach ($optionsKeys as $key) {
+            if (isset($_GET[$key])) {
+                $shows = $shows->join("options_to_models as $key", "$key.model_id", "=", "shows.id");
+                $options = [];
+                foreach ($_GET[$key] as $value) {
+                    $options[] = $value;
+                }
+                $shows = $shows->whereIn("$key.option_id", $options);
+            }
+        }
+        //Range
+        if (isset($_GET['sMin']) && isset($_GET['sMax'])) {
+            $shows = $shows->whereBetween('runtime', [$_GET['sMin'], $_GET['sMax']]);
+        }
+        $shows = $shows->select('shows.*')->distinct();
+        $count = $shows->count();
+        $shows = $shows->paginate(20);
+        
 
         //Filter
         if (Utils::isAjax()) {
+
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");
 
-            $shows = new Show;
+            if (isset($_GET['query'])) {
+                print $this->search($_GET['query'], $lang);
+                exit();
+            } else {
 
-            //Terms
-            if (isset($_GET['genre'])) {
-                $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
-                $shows = $shows->whereIn('term_id', $_GET['genre']);
-            }
-
-            //Options
-            $optionsKeys = ['network', 'status'];
-            $options = [];
-            foreach ($optionsKeys as $key) {
-                if (isset($_GET[$key])) {
-                    $shows = $shows->join("options_to_models as $key", "$key.model_id", "=", "shows.id");
-                    $options = [];
-                    foreach ($_GET[$key] as $value) {
-                        $options[] = $value;
-                    }
-                    $shows = $shows->whereIn("$key.option_id", $options);
+                if ($_GET['page'] == 1) {
+                    $view = View::make('shows.ajax.items', compact(['shows', 'lang', 'page', 'next_page']))->render();
+                    $snippets = ['snippet-wrapper' => $view];
+                    print json_encode(['snippets' => $snippets]);
+                } else if ($_GET['page'] > 1) {
+                    $view = View::make('shows.ajax.items', compact(['shows', 'lang', 'page', 'next_page']))->render();
+                    $snippets = ['snippet-more' => $view];
+                    print json_encode(['snippets' => $snippets]);
                 }
+                exit();
             }
-            $shows = $shows->select('shows.*')->distinct();
-            $shows = $shows->paginate(6);
-
-            $view = View::make('shows.ajax.items', compact(['shows', 'lang']))->render();
-            $snippets = ['snippet-items' => $view];
-            print json_encode(['snippets' => $snippets]);
-            exit();
         }
 
-        return view('shows.listing', compact(['filter', 'shows', 'lang']));
+        return view('shows.listing', compact(['filter', 'shows', 'lang', 'page', 'next_page']));
     }
 
     public function detailTranslate($lang, $slug) {
@@ -105,7 +153,27 @@ class ShowsController extends Controller {
                 ->where('lang', '=', $lang)
                 ->select('shows.*')// just to avoid fetching anything from joined table
                 ->first();
+
+
+        if (Utils::isAjax()) {
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+
+            if ($_GET['season'] > 0) {
+                $season = $show->seasonEpisodes($_GET['season']);
+                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
+                $snippets = ['snippet-season-' . $_GET['season'] => $view];
+                print json_encode(['snippets' => $snippets]);
+                exit();
+            }
+        }
+
         return view('shows.detail', compact(['show', 'lang']));
+    }
+
+    public function uislider() {
+        return view('shows.uislider');
     }
 
     public function import() {
@@ -117,7 +185,7 @@ class ShowsController extends Controller {
             'en', 'cs', 'de', 'es', 'fr', 'pl' /* 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no' */
         ];
 
-        $shows = [71663, 153021, 73871, 81189, 121361, 275274, 248736, 79168, 80379, 75682];
+        $shows = [71663, 153021, 73871, 81189, 121361, 275274, 248736, 79168, 80379, 75682, 72218, 73545, 72449, 73739, 70851, 134241, 80348, 257655, 80344, 75340, 129261, 83196, 71470, 74205, 83123, 260449, 259765, 258171, 282670, 82825, 79216,];
         foreach ($shows as $id) {
 
             $enTitle = null;

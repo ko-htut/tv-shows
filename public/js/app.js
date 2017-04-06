@@ -48,16 +48,38 @@ $.ajaxSetup({
 
 //Filter
 $(document).on('change', 'form#filter select, form#filter input', function (e) {
+
     e.preventDefault();
-    //$('#filter-form').find('[name="page"]').val(1);strankovani 
+    $('#filter').find('[name="page"]').val(1);
     var ajaxData = $('#filter').serialize();//data do filteru
     //console.log(ajaxData);
-    //$(".elm_inner_content").addClass("mod--loading");//loading...
+    $("#preloader").removeClass("hide");//loading...
     $.ajax({
         url: location.protocol + '//' + location.host + location.pathname,
         data: ajaxData
     }).done(function () {
-        //$(".elm_inner_content").removeClass("mod--loading");//loading...
+        $("#preloader").addClass("hide");//loading...
         window.history.pushState("", "", decodeURIComponent('?' + ajaxData));
     });
+});
+
+$(document).on('click', '[data-next]', function (e) {
+    e.preventDefault();
+    $('#filter').find('[name="page"]').val(parseInt($('#filter').find('[name="page"]').val()) + 1);
+    var ajaxData = $('#filter').serialize();
+    $.ajax({
+        url: location.protocol + '//' + location.host + location.pathname,
+        data: ajaxData
+    }).done(function () {
+        window.history.pushState("", "", decodeURIComponent('?' + ajaxData));
+    });
+});
+
+var startSlider = document.getElementById('slider-start');
+noUiSlider.create(startSlider, {
+    start: [0, 100],
+    range: {
+        'min': [0],
+        'max': [100]
+    }
 });

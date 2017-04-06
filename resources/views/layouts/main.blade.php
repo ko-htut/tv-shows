@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ $lang }}">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -9,13 +9,20 @@
         <!-- CSS  -->
         <link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.2.0/nouislider.min.css" />
+        
         <link href="<?php echo url('/'); ?>/public/css/app.css" type="text/css" rel="stylesheet" media="screen,projection">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        
+        
+     
     </head>
     <body>
         <!-- JS -->
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.2.0/nouislider.min.js"></script>
+        
         <script src="<?php echo url('/'); ?>/public/js/app.js"></script>
         <script src="<?php echo url('/'); ?>/public/js/init.js"></script>
         @include('layouts.header')
@@ -23,7 +30,7 @@
             <h1></h1>
         </div>
         <div class="container1024">
-           @yield('content')
+            @yield('content')
         </div>
         @include('layouts.footer')
         <div id="hide">

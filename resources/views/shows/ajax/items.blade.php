@@ -1,4 +1,4 @@
-<div class="row" id="snippet-items">
+<div id="snippet-wrapper">
     @foreach ($shows as $show)
     <div class="col s12 m6 l6">
         <div class="card">
@@ -16,6 +16,8 @@
 
         </div>
     </div>
-    @endforeach  
-    @include('pagination.custom', ['paginator' => $shows])
+    @endforeach
+    <div id="snippet-more">
+        @include('shows.ajax.more')
+    </div>
 </div>

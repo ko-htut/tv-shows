@@ -1,3 +1,4 @@
+
 <!-- Dropdown Structure -->
 <ul id="dropdown1" class="dropdown-content">
     <li><a href="<?php echo url('/'); ?>">Cs</a></li>
@@ -10,9 +11,7 @@
 </ul>
 <nav>
     <div class="nav-wrapper teal">
-        <a href="#!" class="brand-logo"></a>
         <ul class="right hide-on-med-and-down">
-
             <!-- Dropdown Trigger -->
             <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Languages<i class="material-icons right">arrow_drop_down</i></a></li>
         </ul>

@@ -11,12 +11,22 @@
   |
  */
 
-//Route::get('import', 'ShowsController@import');
+Route::get('import', 'ShowsController@import');
 
-Route::get('/', 'ShowsController@listing', function ($lang) {});
-Route::get('/{lang}', 'ShowsController@listing', function ($lang) {});
+Route::get('/', 'ShowsController@listing', function ($lang) {
+    
+});
+Route::get('/{lang}', 'ShowsController@listing', function ($lang) {
+    
+});
 
-Route::get('shows/{slug}', 'ShowsController@detail', function ($slug) {});
-Route::get('{lang}/shows/{slug}', 'ShowsController@detailTranslate', function ($lang, $slug) {});
+Route::get('shows/{slug}', 'ShowsController@detail', function ($slug) {
+    
+});
+Route::get('{lang}/shows/{slug}', 'ShowsController@detailTranslate', function ($lang, $slug) {
+    
+});
+
+
 
 

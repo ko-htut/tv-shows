@@ -8,3 +8,26 @@
 .collapsible-body{
     padding:0px;
 }
+
+.noUi-handle {
+    display: inline-block;
+    color: #fff;
+    font-weight: 400;
+    border-radius: 0;
+    text-align: center;
+    line-height: 0;
+    padding: .1em;
+    border: .1em solid #a6968d;
+    background-color: #fff;
+    cursor: pointer;
+    z-index: 1;
+    position: relative;
+}
+
+.noUi-connect {
+    background: #ebe6e4;
+    -webkit-transition: background 450ms;
+    transition: background 450ms;
+    box-shadow: none;
+    
+}
