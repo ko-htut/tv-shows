@@ -12,16 +12,20 @@
         </div>
         @endforeach  
         <div class="chip">
-            Network: {{ $show->network()->translation()->value }}
+            {{ $show->network()->translation()->value }}
+            <i class="close material-icons">tv</i>
         </div>
         <div class="chip">
-            Status: {{ $show->status()->translation()->value }}
+            {{ $show->status()->translation()->value }}
+            <i class="close material-icons">info_outline</i>
         </div>
         <div class="chip">
-            Runtime: {{ $show->runtime }} min
+            {{ $show->runtime }} min
+            <i class="close material-icons">timer</i>
         </div>
         <div class="chip">
-            Since: {{ $show->first_aired }}
+            {{ $show->first_aired }}
+            <i class="close material-icons">cake</i>
         </div>
     </div>
 

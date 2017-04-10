@@ -4,38 +4,12 @@
 
     $(function () {
 
-        var rangeSlider = document.getElementById('runtimeSlider');
-        var $slider = $('#runtimeSlider');
-        noUiSlider.create(rangeSlider, {
-            start: [parseInt($("#sMin").val()), parseInt($("#sMax").val())],
-            connect: true,
-            step: $slider.data('step'),
-            range: {
-                'min': parseInt($("#sMin").val()),
-                'max': parseInt($("#sMax").val()),
-            },
-        });
-        var sMin = document.getElementById('sMin');
-        var sMax = document.getElementById('sMax');
-
-        rangeSlider.noUiSlider.on('update', function (values, handle) {
-            var value = values[handle];
-
-            if (handle) {
-                sMax.value = parseInt(value);
-                $("#sMax").val(sMax.value).trigger("change");
-            } else {
-                sMin.value = parseInt(value);
-                $("#sMin").val(sMin.value).trigger("change");
-            }
-        });
-
-
         if ($("form#filter").length) {
             //$('form#filter select[name=genres]').material_select();
             $('form#filter select#genres').material_select();
             $('form#filter select#networks').material_select();
             $('form#filter select#statuses').material_select();
+            $('form#filter select#order').material_select();
         }
 
         initAutoComplete({inputId: 'search', ajaxUrl: window.location.href});
@@ -148,9 +122,32 @@
         }
 
 
+        var rangeSlider = document.getElementById('runtimeSlider');
+        var $slider = $('#runtimeSlider');
+        noUiSlider.create(rangeSlider, {
+            start: [parseInt($("#sMin").val()), parseInt($("#sMax").val())],
+            connect: true,
+            step: $slider.data('step'),
+            range: {
+                'min': parseInt($("#sMin").val()),
+                'max': parseInt($("#sMax").val()),
+            },
+        });
+        var sMin = document.getElementById('sMin');
+        var sMax = document.getElementById('sMax');
 
-
-
+        rangeSlider.noUiSlider.on('slide', function (values, handle) {
+            
+                var value = values[handle];
+                if (handle) {
+                    sMax.value = parseInt(value);
+                    $("#sMax").val(sMax.value).trigger("change");
+                } else {
+                    sMin.value = parseInt(value);
+                    $("#sMin").val(sMin.value).trigger("change");
+                }
+            
+        });
 
     }); // end of document ready
 })(jQuery); // end of jQuery name space

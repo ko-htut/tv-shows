@@ -75,11 +75,3 @@ $(document).on('click', '[data-next]', function (e) {
     });
 });
 
-var startSlider = document.getElementById('slider-start');
-noUiSlider.create(startSlider, {
-    start: [0, 100],
-    range: {
-        'min': [0],
-        'max': [100]
-    }
-});

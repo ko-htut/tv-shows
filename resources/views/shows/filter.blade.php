@@ -1,9 +1,21 @@
 <div class="row">
     <input name="page" value="{{ $page }}" type="hidden">
-    <div class="input-field col s12 m12 l12">
+
+    <div class="input-field col s12 m12 l8">
         <input type="text" id="search" name="search" class="autocomplete" value="@if (isset($_GET['search'])){{ $_GET['search'] }}@endif">
         <label for="search">Search</label>
     </div>
+
+    <div class="input-field col l4 m12 s12">
+        <select name="order" id="order">
+            <option value="" disabled selected>Order by</option>
+            @foreach ($filter['orders'] as $key => $order)
+            <option value="{{ $key }}" >{{ $order }}</option>
+            @endforeach  
+        </select>
+        <label>Order</label>
+    </div>
+
     <div class="input-field col l4 m6 s12">
         <select multiple name="genre[]" id="genres">
             <option value="" disabled selected>Select genres</option>
@@ -32,10 +44,17 @@
         <label>Statuses</label>
     </div>
 
-    <div class="col l12 m12 s12">
+    <div class="input-field col l6 m6 s6" style="">
         <div id="runtimeSlider" data-step="1">
         </div>
-        <input type="hidden" id="sMin" name="sMin" value="{{ $filter['runtime']['min'] }}">
-        <input type="hidden" id="sMax" name="sMax" value="{{ $filter['runtime']['max'] }}">
     </div>
+
+    <div class="input-field col l3 m3 s3">
+        <input type="number" id="sMin" name="sMin" value="{{ $filter['runtime']['min'] }}">
+    </div>
+    <div class="input-field col l3 m3 s3">
+        <input type="number" id="sMax" name="sMax" value="{{ $filter['runtime']['max'] }}">
+    </div>
+
+
 </div>

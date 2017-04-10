@@ -80,6 +80,10 @@ class Show extends Authenticatable {
         return $this->morphToMany('App\Option', 'model', 'options_to_models', null, null)->where('select_id', '=', $select_id)->first();
     }
 
+    public function getFirstAiredAttribute() {
+       return date('Y', strtotime($this->attributes['first_aired']));
+    }
+
     public function views($periond = null) {
         
     }

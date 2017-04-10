@@ -52,14 +52,17 @@ class ShowsController extends Controller {
                 'min' => Show::min('runtime'),
                 'max' => Show::max('runtime'),
             ],
+            'orders' => [
+                'rating' => 'Rating',
+            ]
         ];
-
+        $limit = 10;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $next_page = $page + 1;
 
         $shows = new Show;
         //Search
-        if (isset($_GET['search'])) {
+        if (isset($_GET['search']) && !empty($_GET['search'])) {
             $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
             $shows = $shows->where('translation.title', 'LIKE', "%{$_GET['search']}%");
             $shows = $shows->where('translation.lang', '=', $lang); ////All translations
@@ -67,7 +70,8 @@ class ShowsController extends Controller {
         //Terms
         if (isset($_GET['genre'])) {
             $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
-            $shows = $shows->whereIn('term_id', $_GET['genre']);
+            $shows = $shows->whereIn('ttm.term_id', $_GET['genre']);
+            //dd($shows->toSql());
         }
         //Options
         $optionsKeys = ['network', 'status'];
@@ -86,11 +90,19 @@ class ShowsController extends Controller {
         if (isset($_GET['sMin']) && isset($_GET['sMax'])) {
             $shows = $shows->whereBetween('runtime', [$_GET['sMin'], $_GET['sMax']]);
         }
-        $shows = $shows->select('shows.*')->distinct();
-        $count = $shows->count();
-        $shows = $shows->paginate(20);
+        //Order
+        if (isset($_GET['order']) && !empty($_GET['order'])) {
+            $shows = $shows->orderBy($_GET['order'], 'DESC');
+        }
+        $shows = $shows->select('shows.*')->distinct('shows.id');
+        $results = $shows->count('shows.id');
+        $shows = $shows->paginate($limit);
+        $more = ceil($results / $limit) > $page ? true : false;
         
-
+        //Counting future clicks
+        
+        
+        /*select distinct `shows`.* from `shows` inner join `terms_to_models` as `ttm` on `ttm`.`model_id` = `shows`.`id` where `ttm`.`term_id` in (1,2,3,4,5,6,7,8,9,10,11,12,13)*/
         //Filter
         if (Utils::isAjax()) {
 
@@ -102,21 +114,14 @@ class ShowsController extends Controller {
                 print $this->search($_GET['query'], $lang);
                 exit();
             } else {
-
-                if ($_GET['page'] == 1) {
-                    $view = View::make('shows.ajax.items', compact(['shows', 'lang', 'page', 'next_page']))->render();
-                    $snippets = ['snippet-wrapper' => $view];
-                    print json_encode(['snippets' => $snippets]);
-                } else if ($_GET['page'] > 1) {
-                    $view = View::make('shows.ajax.items', compact(['shows', 'lang', 'page', 'next_page']))->render();
-                    $snippets = ['snippet-more' => $view];
-                    print json_encode(['snippets' => $snippets]);
-                }
+                $view = View::make('shows.ajax.items', compact(['shows', 'lang', 'page', 'next_page', 'more', 'results']))->render();
+                $snippets = [$_GET['page'] == 1 ? 'snippet-wrapper' : 'snippet-more' => $view];
+                print json_encode(['snippets' => $snippets]);
                 exit();
             }
         }
 
-        return view('shows.listing', compact(['filter', 'shows', 'lang', 'page', 'next_page']));
+        return view('shows.listing', compact(['filter', 'shows', 'lang', 'page', 'next_page', 'more', 'results']));
     }
 
     public function detailTranslate($lang, $slug) {
