@@ -5,6 +5,15 @@
     margin: 0 auto;
 }
 
+.chip-icon{
+    
+    float: right;
+    font-size: 16px!important;
+    line-height: 32px!important;
+    padding-left: 8px;
+}
+
+
 .collapsible-body{
     padding:0px;
 }
@@ -29,5 +38,5 @@
     -webkit-transition: background 450ms;
     transition: background 450ms;
     box-shadow: none;
-    
+
 }

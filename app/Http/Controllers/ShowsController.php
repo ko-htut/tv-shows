@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Language;
 use App\Show;
 use App\Select;
+use App\TermPivot;
 use App\Option;
 use App\OptionTranslation;
 use App\OptionPivot;
@@ -42,11 +43,24 @@ class ShowsController extends Controller {
         return json_encode($result);
     }
 
+    public function counter() {
+
+        dd("...");
+    }
+
     public function listing($lang = 'cs') {
+
+
+
+
+
 
         $filter = [
             'genres' => \App\Term::all(),
+            'genres_counter' => DB::table('terms_to_models')->select(DB::raw('term_id, count(*) as count'))->groupBy('term_id')->get()->keyBy('term_id')->toArray(),
             'networks' => \App\Option::where('select_id', '=', Select::where('title', '=', 'network')->first()->id)->get(),
+            'options_counter' => DB::table('options_to_models')->select(DB::raw('option_id, count(*) as count'))->groupBy('option_id')->get()->keyBy('option_id')->toArray(),
+            
             'statuses' => \App\Option::where('select_id', '=', Select::where('title', '=', 'status')->first()->id)->get(),
             'runtime' => [
                 'min' => Show::min('runtime'),
@@ -54,8 +68,11 @@ class ShowsController extends Controller {
             ],
             'orders' => [
                 'rating' => 'Rating',
-            ]
+            ],
+            
+            
         ];
+        //dd($filter);
         $limit = 10;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $next_page = $page + 1;
@@ -71,7 +88,6 @@ class ShowsController extends Controller {
         if (isset($_GET['genre'])) {
             $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
             $shows = $shows->whereIn('ttm.term_id', $_GET['genre']);
-            //dd($shows->toSql());
         }
         //Options
         $optionsKeys = ['network', 'status'];
@@ -86,23 +102,32 @@ class ShowsController extends Controller {
                 $shows = $shows->whereIn("$key.option_id", $options);
             }
         }
+
         //Range
         if (isset($_GET['sMin']) && isset($_GET['sMax'])) {
             $shows = $shows->whereBetween('runtime', [$_GET['sMin'], $_GET['sMax']]);
         }
+
+        $shows = $shows->select('shows.*')->distinct('shows.id');
+
+
+        $results = $shows->count('shows.id'); //'shows.id'
         //Order
         if (isset($_GET['order']) && !empty($_GET['order'])) {
             $shows = $shows->orderBy($_GET['order'], 'DESC');
         }
-        $shows = $shows->select('shows.*')->distinct('shows.id');
-        $results = $shows->count('shows.id');
+
+
+        //$results = $shows->groupBy('shows.id');//'shows.id'
+
+
         $shows = $shows->paginate($limit);
         $more = ceil($results / $limit) > $page ? true : false;
-        
+
         //Counting future clicks
-        
-        
-        /*select distinct `shows`.* from `shows` inner join `terms_to_models` as `ttm` on `ttm`.`model_id` = `shows`.`id` where `ttm`.`term_id` in (1,2,3,4,5,6,7,8,9,10,11,12,13)*/
+
+
+        /* select distinct `shows`.* from `shows` inner join `terms_to_models` as `ttm` on `ttm`.`model_id` = `shows`.`id` where `ttm`.`term_id` in (1,2,3,4,5,6,7,8,9,10,11,12,13) */
         //Filter
         if (Utils::isAjax()) {
 
@@ -175,10 +200,6 @@ class ShowsController extends Controller {
         }
 
         return view('shows.detail', compact(['show', 'lang']));
-    }
-
-    public function uislider() {
-        return view('shows.uislider');
     }
 
     public function import() {
