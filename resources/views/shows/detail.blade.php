@@ -13,19 +13,19 @@
         @endforeach  
         <div class="chip">
             {{ $show->network()->translation()->value }}
-            <i class="chip-icon material-icons">tv</i>
+            <i class="close material-icons">tv</i>
         </div>
         <div class="chip">
             {{ $show->status()->translation()->value }}
-            <i class="chip-icon material-icons">info_outline</i>
+            <i class="close material-icons">info_outline</i>
         </div>
         <div class="chip">
             {{ $show->runtime }} min
-            <i class="chip-icon material-icons">timer</i>
+            <i class="close material-icons">timer</i>
         </div>
         <div class="chip">
             {{ $show->first_aired }}
-            <i class="chip-icon material-icons">cake</i>
+            <i class="close material-icons">cake</i>
         </div>
     </div>
 

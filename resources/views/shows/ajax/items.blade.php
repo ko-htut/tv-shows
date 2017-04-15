@@ -1,9 +1,11 @@
 <div id="snippet-wrapper">
+    
     @if($page == 1)
     <div class="input-field col l12 m12 s12">
         <p>Found {{ $results }} results</p>
     </div>
     @endif
+    
     @foreach ($shows as $show)
     <div class="col s12 m6 l6">
         <div class="card">
