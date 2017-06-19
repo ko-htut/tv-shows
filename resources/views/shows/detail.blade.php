@@ -15,10 +15,7 @@
             {{ $show->network()->translation()->value }}
             <i class="chip-icon material-icons">tv</i>
         </div>
-        <div class="chip">
-            {{ $show->status()->translation()->value }}
-            <i class="chip-icon material-icons">info_outline</i>
-        </div>
+        
         <div class="chip">
             {{ $show->runtime }} min
             <i class="chip-icon material-icons">timer</i>

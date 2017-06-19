@@ -18,7 +18,7 @@ class Show extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'thetvdb_id', 'imdb_id', 'first_aired', 'finale_aired', 'air_day', 'air_time', 'rating', 'rating_count', 'runtime', 'last_updated', 'active'
+        'thetvdb_id', 'imdb_id', 'first_aired', 'ended', 'air_day', 'air_time', 'rating', 'rating_count', 'runtime', 'last_updated', 'active'
     ];
 
     /**

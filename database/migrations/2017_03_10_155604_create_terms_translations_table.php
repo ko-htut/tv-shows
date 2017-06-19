@@ -21,7 +21,6 @@ class CreateTermsTranslationsTable extends Migration {
             $table->text('description')->nullable();
             $table->string('meta_title', 60)->nullable();
             $table->string('meta_description', 60)->nullable();
-            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 

@@ -17,7 +17,7 @@ class Language extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'code', 'name',
+        'code', 'name', 'englishName'
     ];
 
     /**

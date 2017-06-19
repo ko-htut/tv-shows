@@ -14,7 +14,7 @@ use App\TermTranslation;
 use App\TermPivot;
 
 /** Vygenerovani pratelske URL adresy
- * http://programujte.com/clanek/2006092301-vytvarime-srozumitelne-url-adresy-z-nazvu-clanku/  
+ * http://programujte.com/clanek/2006092301-vytvarime-srozumitelne-url-adresy-z-nazvu-clanku/
  * @param string $title retezec, ze ktereho vygenerujeme url adresu
  * @return string $address vraceny retezec obsahujici friendly url
  */
@@ -44,13 +44,44 @@ class Utils {
         }
     }
 
+    public static function insertActor($actor, $model_id, $mode_type) {
+
+        $actorId = \App\Actor::firstOrCreate(
+                        [
+                            'thetvdb_id' => $actor['thetvdb_id'],
+                            'name' => $actor['name'],
+                            'role' => $actor['role'],
+                            'sort' => $actor['sort']
+                        ]
+                )->id;
+
+        if ($actor['image']) {
+            $fileArr = [
+                'type' => 'thumb',
+                'extension' => 'jpg',
+                'external_patch' => 'http://thetvdb.com/banners/' . $actor['image'],
+                'model_id' => $actorId,
+                'model_type' => 'App\Actor'];
+
+            $file = File::firstOrCreate($fileArr);
+        }
+
+        $pivot = \App\ActorPivot::firstOrCreate(['actor_id' => $actorId, 'model_id' => $model_id, 'model_type' => $mode_type]);
+    }
+
+    //Q = primereny pocet hodnoceni..
+    //https://math.stackexchange.com/questions/942738/algorithm-to-calculate-rating-based-on-multiple-reviews-using-both-review-score.
+    public static function score($rating, $ratingCount, $Q = 144, $P = 0.5) {
+        return ($P * $rating + 10 * ( 1 - $P) * (1 - pow(M_E, -$ratingCount / $Q)));
+    }
+
     public static function url_get_contents($Url) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'method' => "GET",
             'header' => "Accept-language: en\r\n" .
             "Cookie: foo=bar\r\n" . // check function.stream-context-create on php.net
-            "User-Agent: Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.102011-10-16 20:23:10\r\n" // i.e. An iPad 
+            "User-Agent: Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.102011-10-16 20:23:10\r\n" // i.e. An iPad
         ));
         curl_setopt($ch, CURLOPT_URL, $Url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -71,6 +102,17 @@ class Utils {
 
         curl_close($ch);
         return $output;
+    }
+
+    public static function slugify($string, $separator = '-') {
+        $accents_regex = '~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i';
+        $special_cases = array('&' => 'and', "'" => '');
+        $string = mb_strtolower(trim($string), 'UTF-8');
+        $string = str_replace(array_keys($special_cases), array_values($special_cases), $string);
+        $string = preg_replace($accents_regex, '$1', htmlentities($string, ENT_QUOTES, 'UTF-8'));
+        $string = preg_replace("/[^a-z0-9]/u", "$separator", $string);
+        $string = preg_replace("/[$separator]+/u", "$separator", $string);
+        return $string;
     }
 
     public static function slug($title) {
@@ -271,6 +313,34 @@ class Utils {
 
     public static function age_start($age) {
         return date('Y-m-d', strToTime("now - $age years"));
+    }
+
+    public static function CallAPI($method, $url, $data = false) {
+        $curl = curl_init();
+
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+
+                if ($data)
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_PUT, 1);
+                break;
+            default:
+                if ($data)
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+        }
+
+        // Optional Authentication:
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($curl, CURLOPT_USERPWD, "username:password");
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($curl);
+        curl_close($curl);
+        return $result;
     }
 
 }

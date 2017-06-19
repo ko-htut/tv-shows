@@ -20,7 +20,6 @@ class CreatePagesTranslationsTable extends Migration {
             $table->text('content');
             $table->string('meta_title')->nullable();
             $table->string('meta_description')->nullable();
-            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 

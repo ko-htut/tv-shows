@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-image">
                 <img src="{{ $show->banner()->external_patch }}">
-                <a href="{{ $lang }}/shows/{{ $show->translation($lang)->slug }}" 
+                <a href="{{ $lang }}/shows/{{ $show->translation($lang)->slug }}"
                    class="btn-floating halfway-fab waves-effect waves-light red">
                     <i class="material-icons">add</i>
                 </a>
@@ -23,20 +23,20 @@
                 <div class="row truncate">
                     <div class="col s12 m6 l6">
                         <div class="chip">
-                            {{ $show->network()->translation()->value }}
-                            <i class="close material-icons">tv</i>
+                            {{ $show->rating }}
+                            <i class="chip-icon material-icons">star_border</i>
                         </div>
                         <div class="chip">
-                            {{ $show->status()->translation()->value }}
-                            <i class="close material-icons">info_outline</i>
+                            {{ $show->network()->translation()->value }}
+                            <i class="chip-icon material-icons">tv</i>
                         </div>
                         <div class="chip">
                             {{ $show->runtime }} min
-                            <i class="close material-icons">timer</i>
+                            <i class="chip-icon material-icons">timer</i>
                         </div>
                         <div class="chip">
                             {{ $show->first_aired }}
-                            <i class="close material-icons">cake</i>
+                            <i class="chip-icon material-icons">all_inclusive</i>
                         </div>
                     </div>
                 </div>

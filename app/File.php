@@ -15,7 +15,7 @@ class File extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'patch', 'external_patch', 'type', 'extension', 'file_size', 'active', 'model_type', 'model_id'
+       'parent_id', 'patch', 'external_patch', 'type', 'extension', 'file_size', 'active', 'model_type', 'model_id', 'sort'
     ];
 
     /**

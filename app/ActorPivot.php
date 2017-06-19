@@ -5,19 +5,21 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class ActorTranslation extends Authenticatable {
+class ActorPivot extends Authenticatable {
 
     use Notifiable;
 
-    protected $table = 'actors_translations';
+    protected $table = 'actors_to_models';
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
+    
+    
     protected $fillable = [
-        'actor_id', 'lang', 'title', 'slug', 'content', 'meta_title', 'meta_description'
+        'actor_id', 'model_id', 'model_type', 'active'
     ];
 
     /**
@@ -28,12 +30,6 @@ class ActorTranslation extends Authenticatable {
     protected $hidden = [
     ];
 
-    public function language() {
-        return $this->belongsTo('App\Language');
-    }
-
-    public function actor() {
-        return $this->belogsTo('App\Actor');
-    }
+    
 
 }

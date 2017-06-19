@@ -14,8 +14,10 @@ class CreateActorsTable extends Migration {
     public function up() {
         Schema::create('actors', function (Blueprint $table) {
             $table->increments('id');
-            $table->enum('gender', ['M', 'F'])->nullable();
-            $table->date('birthday')->nullable();
+            $table->integer('thetvdb_id')->unsigned()->unique();
+            $table->string('name', 180)->nullable();
+            $table->string('role', 180)->nullable();
+            $table->integer('sort')->unsigned()->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

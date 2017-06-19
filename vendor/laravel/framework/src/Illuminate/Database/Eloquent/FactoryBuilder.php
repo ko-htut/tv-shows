@@ -236,9 +236,6 @@ class FactoryBuilder
         foreach ($attributes as &$attribute) {
             $attribute = $attribute instanceof Closure
                             ? $attribute($attributes) : $attribute;
-
-            $attribute = $attribute instanceof Model
-                            ? $attribute->getKey() : $attribute;
         }
 
         return $attributes;

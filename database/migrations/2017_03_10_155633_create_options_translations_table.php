@@ -17,7 +17,6 @@ class CreateOptionsTranslationsTable extends Migration {
             $table->integer('option_id')->unsigned()->nullable();
             $table->string('value')->nullable();
             $table->string('lang', 2)->nullable(); //FK
-            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 
@@ -26,7 +25,7 @@ class CreateOptionsTranslationsTable extends Migration {
             $table->foreign('lang')->references('code')->on('languages');
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *

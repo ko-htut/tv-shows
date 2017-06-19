@@ -10,8 +10,13 @@
   | contains the "web" middleware group. Now create something great!
   |
  */
+Route::get('thetvdbshows', 'ShowsController@thetvdbshows');
 
 Route::get('import', 'ShowsController@import');
+
+Route::get('import2', 'ShowsController@import2');
+
+Route::get('api', 'ShowsController@api');
 
 Route::get('/', 'ShowsController@listing', function ($lang) {
     

@@ -3,10 +3,11 @@
 namespace Illuminate\Mail;
 
 use Swift_Mailer;
+use Swift_Message;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
+use Illuminate\Support\HtmlString;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
@@ -293,7 +294,7 @@ class Mailer implements MailerContract, MailQueueContract
      */
     protected function renderView($view, $data)
     {
-        return $view instanceof Htmlable
+        return $view instanceof HtmlString
                         ? $view->toHtml()
                         : $this->views->make($view, $data)->render();
     }
@@ -400,7 +401,7 @@ class Mailer implements MailerContract, MailQueueContract
      */
     protected function createMessage()
     {
-        $message = new Message($this->swift->createMessage('message'));
+        $message = new Message(new Swift_Message);
 
         // If a global from address has been specified we will set it on every message
         // instances so the developer does not have to repeat themselves every time

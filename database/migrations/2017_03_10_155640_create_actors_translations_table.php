@@ -21,7 +21,6 @@ class CreateActorsTranslationsTable extends Migration {
             $table->text('content')->nullable();
             $table->string('meta_title')->nullable();
             $table->string('meta_description')->nullable();
-            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 

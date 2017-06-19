@@ -21,7 +21,7 @@ class CreateShowsTable extends Migration {
             $table->integer('thetvdb_id')->unsigned()->unique();
             $table->string('imdb_id')->nullable();
             $table->date('first_aired')->nullable();
-            $table->date('finale_aired')->nullable();
+            $table->boolean('ended')->nullable();
             $table->integer('air_day')->unsigned()->nullable();
             $table->string('air_time', 20)->nullable();
             $table->float('rating')->nullable();

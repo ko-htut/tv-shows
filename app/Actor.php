@@ -15,7 +15,7 @@ class Actor extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'gender', 'birthday', 'active',
+        'thetvdb_id', 'name', 'role', 'sort', 'active',
     ];
 
     /**

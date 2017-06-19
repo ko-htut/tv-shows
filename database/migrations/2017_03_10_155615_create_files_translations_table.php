@@ -18,7 +18,6 @@ class CreateFilesTranslationsTable extends Migration {
             $table->string('lang', 2)->nullable(); //FK
             $table->string('title')->nullable();
             $table->text('description');
-            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 

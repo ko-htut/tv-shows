@@ -16,6 +16,8 @@ class CreateLanguagesTable extends Migration {
         Schema::create('languages', function (Blueprint $table) {
             $table->string('code', 2)->primary();
             $table->string('name', 60)->nullable();
+            $table->string('englishName', 60)->nullable();
+            $table->boolean('default')->default(false);
         });
     }
 
