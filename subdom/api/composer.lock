@@ -1,0 +1,86 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "3b9aedea91df2a06ef4ccac397a31569",
+    "content-hash": "604818f347ac25f9333df34be4522fc2",
+    "packages": [
+        {
+            "name": "dibi/dibi",
+            "version": "v3.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dg/dibi.git",
+                "reference": "0e5d951dfb672da85c64c3f078e9f650d5d49605"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dg/dibi/zipball/0e5d951dfb672da85c64c3f078e9f650d5d49605",
+                "reference": "0e5d951dfb672da85c64c3f078e9f650d5d49605",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.4"
+            },
+            "replace": {
+                "dg/dibi": "*"
+            },
+            "require-dev": {
+                "nette/tester": "~1.7",
+                "tracy/tracy": "~2.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ],
+                "files": [
+                    "src/loader.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0",
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "https://davidgrudl.com"
+                }
+            ],
+            "description": "Dibi is Database Abstraction Library for PHP",
+            "homepage": "https://dibiphp.com",
+            "keywords": [
+                "access",
+                "database",
+                "dbal",
+                "mssql",
+                "mysql",
+                "odbc",
+                "oracle",
+                "pdo",
+                "postgresql",
+                "sqlite",
+                "sqlsrv"
+            ],
+            "time": "2017-06-10 01:05:18"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

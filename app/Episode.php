@@ -42,10 +42,19 @@ class Episode extends Authenticatable {
     }
 
     public function translation($lang = null) {
-        if ($lang == null) {
-            $lang = 'cs';
+        $lang = isset($lang) ? $lang : DEF_TRANSLATION;
+        $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', '=', $lang)->first();
+        if (!$translation->title) {
+            $translations = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->get();
+            foreach ($translations as $tr) {
+                if (!$tr->title) {
+                    continue;
+                } else {
+                    return $tr;
+                }
+            }
         }
-        return $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', '=', $lang)->first();
+        return $translation;
     }
 
     public function thumb() {//TODO::MORPH BY

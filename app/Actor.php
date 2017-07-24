@@ -50,7 +50,31 @@ class Actor extends Authenticatable {
     }
 
     public function thumb() {
-        
+        $thumb = $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Actor')->where('type', '=', 'thumb')->first();
+
+
+        $ch = curl_init($thumb->external_patch);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_exec($ch);
+        $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($retcode != 200) {
+            $cachedUrl = 'http://thetvdb.com/' . '/banners/_cache/actors/' . $this->thetvdb_id . '.jpg';
+            $ch = curl_init($cachedUrl);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_exec($ch);
+            $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if ($retcode == 200) {
+                $thumb->external_patch = $cachedUrl;
+                return $thumb;
+            } else {
+                $thumb->external_patch = 'http://thetvdb.com/' . '/banners/actors/0.jpg';
+                return $thumb;
+            }
+        } else {
+            return $thumb;
+        }
     }
 
     public function thumbs() {

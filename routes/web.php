@@ -10,6 +10,12 @@
   | contains the "web" middleware group. Now create something great!
   |
  */
+
+
+Route::group([ 'prefix' => 'android-api'], function() {
+    Route::get('/', 'AndroidApiController@index');
+});
+
 Route::get('thetvdbshows', 'ShowsController@thetvdbshows');
 
 Route::get('import', 'ShowsController@import');
@@ -17,10 +23,15 @@ Route::get('import', 'ShowsController@import');
 Route::get('import2', 'ShowsController@import2');
 
 Route::get('api', 'ShowsController@api');
+Route::get('images', 'ShowsController@images');
+
 
 Route::get('/', 'ShowsController@listing', function ($lang) {
     
 });
+
+
+
 Route::get('/{lang}', 'ShowsController@listing', function ($lang) {
     
 });
@@ -31,6 +42,8 @@ Route::get('shows/{slug}', 'ShowsController@detail', function ($slug) {
 Route::get('{lang}/shows/{slug}', 'ShowsController@detailTranslate', function ($lang, $slug) {
     
 });
+
+
 
 
 

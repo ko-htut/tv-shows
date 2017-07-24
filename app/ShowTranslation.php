@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Cocur\Slugify\Slugify;
 
 
 class ShowTranslation extends Authenticatable {
@@ -35,6 +36,21 @@ class ShowTranslation extends Authenticatable {
 
     public function show() {
         return $this->belogsTo('App\Show');
+    }
+    
+    public function getSlug(){
+        $slugify = new Slugify();
+        return $slugify->slugify($this->title);
+    }
+    
+    public function setSlug(){
+        $slugify = new Slugify();
+        $slug =  $slugify->slugify($this->title);
+        if(strlen($slug) > 4){
+            DB::table('shows_translation')
+            ->where('id', $this->id)
+            ->update(['slug' => $slug]);
+        }
     }
 
 }

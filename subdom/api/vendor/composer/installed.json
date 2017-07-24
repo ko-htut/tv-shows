@@ -1,0 +1,71 @@
+[
+    {
+        "name": "dibi/dibi",
+        "version": "v3.0.8",
+        "version_normalized": "3.0.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/dg/dibi.git",
+            "reference": "0e5d951dfb672da85c64c3f078e9f650d5d49605"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/dg/dibi/zipball/0e5d951dfb672da85c64c3f078e9f650d5d49605",
+            "reference": "0e5d951dfb672da85c64c3f078e9f650d5d49605",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.4"
+        },
+        "replace": {
+            "dg/dibi": "*"
+        },
+        "require-dev": {
+            "nette/tester": "~1.7",
+            "tracy/tracy": "~2.2"
+        },
+        "time": "2017-06-10 01:05:18",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ],
+            "files": [
+                "src/loader.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "David Grudl",
+                "homepage": "https://davidgrudl.com"
+            }
+        ],
+        "description": "Dibi is Database Abstraction Library for PHP",
+        "homepage": "https://dibiphp.com",
+        "keywords": [
+            "access",
+            "database",
+            "dbal",
+            "mssql",
+            "mysql",
+            "odbc",
+            "oracle",
+            "pdo",
+            "postgresql",
+            "sqlite",
+            "sqlsrv"
+        ]
+    }
+]

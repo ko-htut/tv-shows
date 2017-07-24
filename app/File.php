@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Intervention\Image;
+//use Intervention\Image\Facades\Image as Image;
 
 class File extends Authenticatable {
 
@@ -15,7 +17,7 @@ class File extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-       'parent_id', 'patch', 'external_patch', 'type', 'extension', 'file_size', 'active', 'model_type', 'model_id', 'sort'
+        'parent_id', 'patch', 'external_patch', 'type', 'extension', 'file_size', 'active', 'model_type', 'model_id', 'sort'
     ];
 
     /**
@@ -38,6 +40,29 @@ class File extends Authenticatable {
             $lang = App::getLocale();
         }
         return $this->hasMany('App\FileTranslation', 'file_id', 'id')->where('lang', '=', $lang)->first();
+    }
+
+    public function src() {
+        if (isset($this->patch) && !empty($this->patch)) {
+            return $this->patch;
+        }
+
+        if (isset($this->external_patch) && !empty($this->external_patch)) {
+            return $this->external_patch;
+        }
+
+        return null;
+    }
+
+    public function getSrc($width, $height = null) {
+        
+    }
+
+    public function resize($width, $height = null, $quality = 90, $type = 'normal') {
+        
+        $img = Image::make($this->patch);
+        //$img->resize($width);
+        //$img->save('public/bar.jpg');
     }
 
 }

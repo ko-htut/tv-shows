@@ -17,7 +17,6 @@ nav .nav-wrapper form, nav .nav-wrapper form .input-field{
 }
 
 .chip-icon{
-
     float: left;
     font-size: 16px!important;
     line-height: 32px!important;
@@ -31,7 +30,7 @@ nav .nav-wrapper form, nav .nav-wrapper form .input-field{
 
 .noUi-handle {
     display: inline-block;
-    color: #fff;
+    color: #ffffff;
     font-weight: 400;
     border-radius: 0;
     text-align: center;
@@ -50,4 +49,34 @@ nav .nav-wrapper form, nav .nav-wrapper form .input-field{
     transition: background 450ms;
     box-shadow: none;
 
+}
+
+.teal{
+    background-color: #111111!important;
+}
+
+span.badge.new{
+    background-color: #111111!important; 
+}
+
+.secondary-content{
+    color: #111111!important; 
+}
+
+.btn, .btn-large{
+    background-color: #111111!important; 
+}
+
+.dropdown-content li>a, .dropdown-content li>span{
+    color: #111111!important; 
+}
+
+.to-quare{
+    object-fit: cover;
+    width:42px;
+    height:42px;
+}
+
+.collection .collection-item.avatar{
+    min-height: 50px!important;
 }

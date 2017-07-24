@@ -2,27 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Language;
 use App\Show;
 use App\Select;
-use App\TermPivot;
-use App\Option;
-use App\OptionTranslation;
-use App\OptionPivot;
-use App\File;
-use App\FileTranslation;
-use Validator;
-use Redirect;
-use Cookie;
 use DB;
 use App\Functions\Utils;
-use Lang;
 use View;
 
 define('THETVDB_API_KEY', '5EA3012696C40059');
 
-class ShowsController extends Controller {
+class ShowsController extends LayoutController {
 
     public function search($query, $lang) {
         $shows = new Show;
@@ -30,23 +19,21 @@ class ShowsController extends Controller {
             //Search
             $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
             $shows = $shows->where('translation.title', 'LIKE', "%$query%");
-            $shows = $shows->where('translation.lang', '=', $lang); ////All translations
+            //$shows = $shows->where('translation.lang', '=', $lang); ////All translations
             $shows = $shows->select('shows.*')->distinct();
             $shows = $shows->paginate(100);
         }
         $result = null;
         foreach ($shows as $show) {
             $name = $show->translation($lang)->title;
-            $img = $show->banner()->external_patch;
+            $img = $show->poster()->external_patch;
             $result[$name] = $img;
         }
-
-
         return json_encode($result);
     }
 
-    public function listing($lang = 'cs') {
-
+    public function listing($lang = DEF_LANG) {
+        //die("x");
 
         $filter = [
             'genres' => \App\Term::all(),
@@ -63,7 +50,7 @@ class ShowsController extends Controller {
             ],
         ];
         //dd($filter);
-        $limit = 10;
+        $limit = 40;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $next_page = $page + 1;
 
@@ -80,7 +67,7 @@ class ShowsController extends Controller {
             $shows = $shows->whereIn('ttm.term_id', $_GET['genre']);
         }
         //Options
-        $optionsKeys = ['network'];//
+        $optionsKeys = ['network']; //
         $options = [];
         foreach ($optionsKeys as $key) {
             if (isset($_GET[$key])) {
@@ -139,7 +126,7 @@ class ShowsController extends Controller {
         return view('shows.listing', compact(['filter', 'shows', 'lang', 'page', 'next_page', 'more', 'results']));
     }
 
-    public function detailTranslate($lang, $slug) {
+    public function detailTranslate($lang = null, $slug = null) {
 
         $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
                 ->where('slug', '=', $slug)
@@ -147,6 +134,19 @@ class ShowsController extends Controller {
                 ->select('shows.*')// just to avoid fetching anything from joined table
                 ->first();
 
+
+
+        if (!$show) {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('slug', '=', $slug)
+                    ->select('shows.*')
+                    ->firstOrFail();
+        }
+
+        if (isset($_GET['update']) && $_GET['update'] == 'true') {
+            $c = new ShowsController;
+            $c->updateShow($show->thetvdb_id);
+        }
 
         if (Utils::isAjax()) {
             header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -166,14 +166,26 @@ class ShowsController extends Controller {
     }
 
     //TODO COPY
+
     public function detail($slug) {
-        $lang = "cs";
+        $lang = DEF_LANG;
         $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
                 ->where('slug', '=', $slug)
                 ->where('lang', '=', $lang)
                 ->select('shows.*')// just to avoid fetching anything from joined table
                 ->first();
 
+        if (!$show) {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('slug', '=', $slug)
+                    ->select('shows.*')
+                    ->firstOrFail();
+        }
+
+        if (isset($_GET['update']) && $_GET['update'] == 'true') {
+            $c = new ShowsController;
+            $c->updateShow($show->thetvdb_id);
+        }
 
         if (Utils::isAjax()) {
             header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -188,7 +200,6 @@ class ShowsController extends Controller {
                 exit();
             }
         }
-
         return view('shows.detail', compact(['show', 'lang']));
     }
 
@@ -422,27 +433,27 @@ class ShowsController extends Controller {
     //New Api
     public function import2() {
         ini_set('max_execution_time', 60 * 60 * 10);
-        
-        $pg = 8;//next 9 23:0
+
+        $pg = 8;
         $lim = 60;
-        
-         $shows = DB::table('thetvdbshows')
+
+        $shows = DB::table('thetvdbshows')
                 ->select('*')
                 ->where('rating_count', '>=', 20)
                 ->where('fanart', '=', 1)
                 ->where('poster', '=', 1)
                 ->orderBy('rating_count', 'desc')
                 ->limit($lim)
-                ->offset($lim*$pg-$lim)
+                ->offset($lim * $pg - $lim)
                 ->get();
-               
+
 
         $client = new \Adrenth\Thetvdb\Client();
         $token = $client->authentication()->login(THETVDB_API_KEY);
         $client->setToken($token);
-        
+
         $langs = $client->languages()->all()->getData()->all();
-        
+
         foreach ($langs as $lang) {
             $lng = [
                 'code' => $lang->values['abbreviation'],
@@ -451,9 +462,6 @@ class ShowsController extends Controller {
             ];
             Language::firstOrCreate($lng);
         }
-
-       
-
 
         $langs = [
             'en', 'cs', 'de', 'es', 'fr', 'pl', 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
@@ -480,7 +488,7 @@ class ShowsController extends Controller {
                     ];
 
                     $showId = \App\Show::firstOrCreate($data)->id;
-                   
+
 
                     Utils::insertOption('network', 'select', $lang, $showData->values['network'], $showId, 'App\Show');
 
@@ -498,10 +506,9 @@ class ShowsController extends Controller {
                         Utils::insertTerm('genre', $term, 'en', $showId, 'App\Show');
                     }
 
-                    
                     $client->setLanguage('en');
                     $actorsData = $client->series()->getActors($thetvdbId)->getData()->all();
-                    
+
                     if (!empty($actorsData)) {
                         foreach ($actorsData as $actor) {
                             $a = [
@@ -556,7 +563,7 @@ class ShowsController extends Controller {
 
                     $episodes = $client->series()->getEpisodes($thetvdbId);
                     $lastPage = $episodes->values['links']->values['last'];
-                    
+
                     //Episdoes
                     for ($pg = 1; $pg <= $lastPage; $pg++) {
                         $episodes = $client->series()->getEpisodes($thetvdbId, $pg)->getData()->all();
@@ -643,6 +650,301 @@ class ShowsController extends Controller {
                     }
                 }
             }
+        }
+    }
+
+    public function updateShow($theTvDbId) {
+
+        ini_set('max_execution_time', 60 * 60 * 10);
+
+        $client = new \Adrenth\Thetvdb\Client();
+        $token = $client->authentication()->login(THETVDB_API_KEY);
+        $client->setToken($token);
+
+        $langs = [
+            'en', 'cs', 'de', 'es', 'fr', 'ru',
+                //'pl', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
+        ];
+
+        foreach ($langs as $lang) {
+
+            if ($lang == DEF_TRANSLATION) {
+                $client->setLanguage($lang);
+                $showData = $client->series()->get($theTvDbId);
+
+                $dbLastUpdated = \App\Show::where('thetvdb_id', '=', $theTvDbId)->first()->last_updated;
+
+
+                if (!($showData->values['lastUpdated'] > $dbLastUpdated)) {
+                    dd('do not update... ' . $showData->values['lastUpdated'] . ' !bigger than ' . $dbLastUpdated);
+                }
+
+
+
+
+                $data = [
+                    'thetvdb_id' => $showData->values['id'],
+                    'imdb_id' => $showData->values['imdbId'],
+                    'first_aired' => Utils::validDate($showData->values['firstAired']) ? $showData->values['firstAired'] : null,
+                    'ended' => $showData->values['status'] == "Ended" ? true : false,
+                    'air_day' => date('N', strtotime($showData->values['airsDayOfWeek'])),
+                    'air_time' => $showData->values['airsTime'],
+                    'rating' => $showData->values['siteRating'],
+                    'rating_count' => $showData->values['siteRatingCount'],
+                    'runtime' => $showData->values['runtime'],
+                    'last_updated' => $showData->values['lastUpdated'],
+                ];
+
+                $showId = \App\Show::updateOrCreate(
+                                ['thetvdb_id' => $theTvDbId], $data
+                        )->id;
+
+                Utils::insertOption('network', 'select', $lang, $showData->values['network'], $showId, 'App\Show');
+
+                $translation = [
+                    'show_id' => $showId,
+                    'lang' => $lang,
+                    'title' => $showData->values['seriesName'],
+                    'slug' => Utils::slug($showData->values['seriesName']),
+                    'content' => $showData->values['overview']
+                ];
+
+
+                $translation = \App\ShowTranslation::updateOrCreate(
+                                ['show_id' => $showId,
+                            'lang' => $lang], $translation);
+
+                $genres = $showData->values['genre'];
+                foreach ($genres as $term) {
+
+                    Utils::insertTerm('genre', $term, 'en', $showId, 'App\Show');
+                }
+
+                $client->setLanguage('en');
+                $actorsData = $client->series()->getActors($theTvDbId)->getData()->all();
+
+                if (!empty($actorsData)) {
+                    foreach ($actorsData as $actor) {
+                        $a = [
+                            'thetvdb_id' => $actor->values['id'],
+                            'name' => $actor->values['name'],
+                            'role' => $actor->values['role'],
+                            'sort' => $actor->values['sortOrder'],
+                            'image' => $actor->values['image'],
+                        ];
+                        Utils::insertActor($a, $showId, 'App\Show');
+                    }
+                }
+
+                //images
+                $client->setLanguage('en');
+                $posters = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'poster'])->getData()->all();
+                if (!empty($posters)) {
+                    foreach ($posters as $poster) {
+                        $arr = [
+                            'type' => 'poster',
+                            'sort' => round($poster->values['ratingsInfo']['average']), //Utils::score($fanart->values['ratingsInfo']['average'], $fanart->values['ratingsInfo']['count'], 20)
+                            'extension' => 'jpg',
+                            'external_patch' => 'http://thetvdb.com/banners/' . $poster->values['fileName'],
+                            'model_id' => $showId,
+                            'model_type' => 'App\Show'
+                        ];
+                        $file = \App\File::updateOrCreate(['external_patch' => 'http://thetvdb.com/banners/' . $poster->values['fileName']], $arr);
+                    }
+                }
+
+                $client->setLanguage('en');
+                $fanarts = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'fanart'])->getData()->all();
+                if (!empty($fanarts)) {
+                    foreach ($fanarts as $fanart) {
+
+                        $arr = [
+                            'type' => 'fanart',
+                            'sort' => round($fanart->values['ratingsInfo']['average']), //Utils::score($fanart->values['ratingsInfo']['average'], $fanart->values['ratingsInfo']['count'], 20)
+                            'extension' => 'jpg',
+                            'external_patch' => 'http://thetvdb.com/banners/' . $fanart->values['fileName'],
+                            'model_id' => $showId,
+                            'model_type' => 'App\Show'
+                        ];
+
+                        $file = \App\File::updateOrCreate(['external_patch' => 'http://thetvdb.com/banners/' . $fanart->values['fileName']], $arr);
+                    }
+                }
+
+                $client->setLanguage($lang);
+
+                $episodes = $client->series()->getEpisodes($theTvDbId);
+                $lastPage = $episodes->values['links']->values['last'];
+
+                //Episodes
+                for ($pg = 1; $pg <= $lastPage; $pg++) {
+                    $episodes = $client->series()->getEpisodes($theTvDbId, $pg)->getData()->all();
+                    //dd($episodes);
+                    foreach ($episodes as $episode) {
+                        $e = $client->episodes()->get($episode->values['id']);
+                        dd($e);
+                        $episodeArr = [
+                            'show_id' => $showId,
+                            'thetvdb_id' => $e->values['id'],
+                            'imdb_id' => $e->values['imdbId'],
+                            'first_aired' => Utils::validDate($e->values['firstAired']) ? $e->values['firstAired'] : null,
+                            'season_number' => $e->values['airedSeason'],
+                            'episode_number' => $e->values['airedEpisodeNumber'],
+                            'rating' => $e->values['siteRating'],
+                            'rating_count' => $e->values['siteRatingCount'],
+                            'last_updated' => $e->values['lastUpdated'],
+                        ];
+
+
+
+                        $episodeId = \App\Episode::updateOrCreate(
+                                        ['show_id' => $showId,
+                                    'thetvdb_id' => $e->values['id']], array_filter($episodeArr))->id;
+
+
+                        //Images
+                        $thumb = 'http://thetvdb.com/banners/' . $e->values['filename'];
+                        if ($thumb) {
+                            $arr = [
+                                'type' => 'thumb',
+                                'extension' => 'jpg',
+                                'external_patch' => $thumb,
+                                'model_id' => $episodeId,
+                                'model_type' => 'App\Episode'];
+
+                            $file = \App\File::updateOrCreate(['external_patch' => $thumb], $arr);
+                        }
+
+
+                        $episodeTranslation = [
+                            'episode_id' => $episodeId,
+                            'lang' => $lang,
+                            'title' => $e->values['episodeName'],
+                            'slug' => Utils::slug($e->values['episodeName']),
+                            'content' => $e->values['overview'],
+                        ];
+
+
+                        \App\EpisodeTranslation::updateOrCreate(
+                                ['episode_id' => $episodeId,
+                            'lang' => $lang], $episodeTranslation);
+                    }
+                }
+            } else {
+
+                $client->setLanguage($lang);
+                $showData = $client->series()->get($theTvDbId);
+
+                $translation = [
+                    'show_id' => $showId,
+                    'lang' => $lang,
+                    'title' => $showData->values['seriesName'],
+                    'slug' => Utils::slug($showData->values['seriesName']),
+                    'content' => $showData->values['overview']
+                ];
+
+
+                $translation = \App\ShowTranslation::updateOrCreate(
+                                ['show_id' => $showId,
+                            'lang' => $lang], $translation);
+
+
+                $client->setLanguage($lang);
+
+                $episodes = $client->series()->getEpisodes($theTvDbId);
+                $lastPage = $episodes->values['links']->values['last'];
+                //Episdoes
+                for ($pg = 1; $pg <= $lastPage; $pg++) {
+                    $episodes = $client->series()->getEpisodes($theTvDbId, $pg)->getData()->all();
+                    foreach ($episodes as $episode) {
+
+                        $e = $client->episodes()->get($episode->values['id']);
+
+                        $episodeArr = [
+                            'show_id' => $showId,
+                            'thetvdb_id' => $e->values['id'],
+                            'imdb_id' => $e->values['imdbId'],
+                            'first_aired' => Utils::validDate($e->values['firstAired']) ? $e->values['firstAired'] : null,
+                            'season_number' => $e->values['airedSeason'],
+                            'episode_number' => $e->values['airedEpisodeNumber'],
+                            'rating' => $e->values['siteRating'],
+                            'rating_count' => $e->values['siteRatingCount'],
+                            'last_updated' => $e->values['lastUpdated'],
+                        ];
+
+
+                        $episodeId = \App\Episode::updateOrCreate(
+                                        ['show_id' => $showId,
+                                    'thetvdb_id' => $episode->values['id']], array_filter($episodeArr))->id;
+
+                        $episodeTranslation = [
+                            'episode_id' => $episodeId,
+                            'lang' => $lang,
+                            'title' => $episode->values['episodeName'],
+                            'slug' => Utils::slug($episode->values['episodeName']),
+                            'content' => $episode->values['overview'],
+                        ];
+
+
+                        \App\EpisodeTranslation::updateOrCreate(
+                                ['episode_id' => $episodeId,
+                            'lang' => $lang], $episodeTranslation);
+                    }
+                }
+            }
+        }
+        die("updated");
+    }
+
+    public function images() {
+
+        //Than update 
+        //UPDATE files SET patch=CONCAT('/',patch) WHERE patch NOT LIKE '/%';
+        $images = \App\File::where('patch', NULL)->orderBy('id', 'asc')->limit(1000)->get();
+        
+        
+        foreach ($images as $img) {
+
+            if (isset($img->external_patch)) {
+                if (strpos($img->external_patch, 'http') !== false) {
+
+                    $headers = get_headers($img->external_patch, true);
+
+                    if ($headers[0] == 'HTTP/1.1 200 OK') {
+                        $ext = pathinfo($img->external_patch, PATHINFO_EXTENSION);
+                        if (!isset($ext) or empty($ext)) {
+                            if (isset($headers['Content-Type'])) {
+                                $pieces = explode('/', $headers['Content-Type']);
+                                $ext = strtok(end($pieces), '+');
+                            } else {
+                                $ext = 'jpg';
+                            }
+                        }
+                        $ext = strtok($ext, '?');
+
+                        $patch = 'public/img/' .
+                                strtolower(str_replace("\\", '', str_replace('App', '', $img->model_type))) . 's/' .
+                                $img->type . '-' . $img->model_id . '-' . $img->id .
+                                '.' . $ext;
+
+                        try {
+                            file_put_contents($patch, file_get_contents($img->external_patch));
+                            $file = \App\File::find($img->id);
+                            $file->patch = $patch;
+                            $file->extension = $ext;
+                            $file->file_size = $headers['Content-Length'];
+                            $file->save();
+                            echo $patch . "<br/>";
+                        } catch (Exception $e) {
+                            
+                        }
+                    }
+                } else {
+                    echo '<strong style="color:red">' . $img->id . ' ' . $img->external_patch . "</strong><br/>";
+                }
+            }
+
+            echo $img->id . ' ' . $img->model_type . '' . $img->model_id . '' . $img->type . "<br>";
         }
     }
 

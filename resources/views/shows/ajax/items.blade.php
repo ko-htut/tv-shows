@@ -8,16 +8,18 @@
     <div class="col s12 m6 l6">
         <div class="card">
             <div class="card-image">
-                <img src="{{ $show->banner()->external_patch }}">
-                <a href="{{ $lang }}/shows/{{ $show->translation($lang)->slug }}"
+                {{ $show->fanart()->resize(487) }}
+                <img src="{{ $show->fanart()->src() }}" alt="{{$show->translation($lang)->title}}">
+                <a href="{{ $show->url($lang)}}"
                    class="btn-floating halfway-fab waves-effect waves-light red">
                     <i class="material-icons">add</i>
                 </a>
             </div>
             <div class="card-content">
-                <span class="card-title truncate">{{ $show->translation($lang)->title }}</span>
+                <span class="card-title truncate">{{ $show->translation($lang)->title }}&nbsp;</span>
+              
                 <div class="row truncate">
-                    <p class="truncate">{{ $show->translation($lang)->content }}</p>
+                    <p class="truncate"></p>
                 </div>
 
                 <div class="row truncate">
@@ -41,7 +43,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     @endforeach
