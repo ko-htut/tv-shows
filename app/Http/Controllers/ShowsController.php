@@ -481,8 +481,14 @@ class ShowsController extends LayoutController {
             'en', 'cs', 'de', 'es', 'fr', 'pl', 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
         ];
 
+        
+        
         foreach ($shows as $show) {
+            
+            
             $thetvdbId = $show->thetvdb_id;
+            
+            echo $show->title . ' ' . $show->thetvdb_id . '<br>';
             foreach ($langs as $lang) {
 
                 if ($lang == 'en') {
