@@ -4,7 +4,9 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Intervention\Image;
+use Image;
+use App\Functions\Utils;
+
 //use Intervention\Image\Facades\Image as Image;
 
 class File extends Authenticatable {
@@ -44,7 +46,7 @@ class File extends Authenticatable {
 
     public function src() {
         if (isset($this->patch) && !empty($this->patch)) {
-            return $this->patch;
+            return 'http://' . $_SERVER['SERVER_NAME'] . $this->patch;
         }
 
         if (isset($this->external_patch) && !empty($this->external_patch)) {
@@ -54,15 +56,74 @@ class File extends Authenticatable {
         return null;
     }
 
-    public function getSrc($width, $height = null) {
-        
+    public function getSrc($width, $type = 'normal') {
+        if ($type == 'normal') {
+            $src = $this->resizeTo($width);
+        } else if ($type == 'thumb') {
+            $src = $this->resizeToThumb($width);
+        }
+
+        return $src;
     }
 
-    public function resize($width, $height = null, $quality = 90, $type = 'normal') {
-        
-        $img = Image::make($this->patch);
+    public function resizeTo($width, $height = null, $quality = 90) {
+
+        $ext = $this->ext();
+        $patch = 'public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
+        $filename = $this->type . '-' . $this->model_id . '-' . $this->id . '-w' . $width . 'px' . '.' . $ext;
+        $full_patch = $patch . $filename;
+        $remote_full_patch = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $full_patch;
+
+        if (Utils::remote_file_exists($remote_full_patch)) {
+            return $remote_full_patch;
+        }
+
+        $img = Image::make(file_get_contents($this->src()));
         //$img->resize($width);
-        //$img->save('public/bar.jpg');
+        $img->resize($width, null, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+        $img->save($full_patch, $quality);
+
+        return $remote_full_patch;
+    }
+
+    public function resizeToThumb($width, $height = null, $quality = 90) {
+
+        $ext = $this->ext();
+        $patch = 'public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
+        $filename = $this->type . '-' . $this->model_id . '-' . $this->id . '-w' . $width . 'px' . '-thumb.' . $ext;
+        $full_patch = $patch . $filename;
+        $remote_full_patch = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $full_patch;
+
+        if (Utils::remote_file_exists($remote_full_patch)) {
+            //return $remote_full_patch;
+        }
+
+        $img = Image::make(file_get_contents($this->src()));
+        //$img->resize($width);
+        $img->resize($width, null, function ($constraint) {
+            $constraint->aspectRatio();
+        });
+        $img->fit($width, $width, null, 'top')->save($full_patch, $quality);
+
+        return $remote_full_patch;
+    }
+
+    /* File extension */
+
+    public function ext() {
+        $ext = pathinfo($this->src(), PATHINFO_EXTENSION);
+        if (!isset($ext) or empty($ext)) {
+            $headers = get_headers($this->src(), true);
+            if (isset($headers['Content-Type'])) {
+                $pieces = explode('/', $headers['Content-Type']);
+                $ext = strtok(end($pieces), '+');
+            } else {
+                $ext = 'jpg';
+            }
+        }
+        return strtok($ext, '?');
     }
 
 }

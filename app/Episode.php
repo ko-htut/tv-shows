@@ -53,6 +53,7 @@ class Episode extends Authenticatable {
                     return $tr;
                 }
             }
+            $translation->title = 'TBA';
         }
         return $translation;
     }

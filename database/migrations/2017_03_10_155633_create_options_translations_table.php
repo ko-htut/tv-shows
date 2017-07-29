@@ -16,6 +16,7 @@ class CreateOptionsTranslationsTable extends Migration {
             $table->increments('id');
             $table->integer('option_id')->unsigned()->nullable();
             $table->string('value')->nullable();
+            $table->string('slug')->nullable();
             $table->string('lang', 2)->nullable(); //FK
             $table->timestamps();
         });
@@ -23,6 +24,7 @@ class CreateOptionsTranslationsTable extends Migration {
         Schema::table('options_translations', function($table) {
             $table->foreign('option_id')->references('id')->on('options');
             $table->foreign('lang')->references('code')->on('languages');
+            $table->unique(['lang', 'slug']);
         });
     }
     

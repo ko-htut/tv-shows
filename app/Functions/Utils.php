@@ -12,7 +12,6 @@ use App\TermType;
 use App\Term;
 use App\TermTranslation;
 use App\TermPivot;
-
 use Cocur\Slugify\Slugify;
 
 /** Vygenerovani pratelske URL adresy
@@ -49,32 +48,30 @@ class Utils {
     public static function insertActor($actor, $model_id, $mode_type) {
 
         $actorId = \App\Actor::updateOrCreate(
-                        ['thetvdb_id' => $actor['thetvdb_id']],
-                        [
-                            'thetvdb_id' => $actor['thetvdb_id'],
-                            'name' => $actor['name'],
-                            'role' => $actor['role'],
-                            'sort' => $actor['sort']
+                        ['thetvdb_id' => $actor['thetvdb_id']], [
+                    'thetvdb_id' => $actor['thetvdb_id'],
+                    'name' => $actor['name'],
+                    'slug' => Utils::slug($actor['name']),
+                    'role' => $actor['role'],
+                    'sort' => $actor['sort']
                         ]
                 )->id;
 
-        
+
         if ($actor['image']) {
             $fileArr = [
                 'type' => 'thumb',
                 'extension' => 'jpg',
                 'external_patch' => 'http://thetvdb.com/banners/' . $actor['image'],
                 'model_id' => $actorId,
-                'model_type' => 'App\Actor', 
-                'base64' => '' ];
+                'model_type' => 'App\Actor',
+                'base64' => ''];
 
             $file = File::updateOrCreate(['external_patch' => 'http://thetvdb.com/banners/' . $actor['image']], $fileArr);
         }
 
         $pivot = \App\ActorPivot::updateOrCreate(['actor_id' => $actorId, 'model_id' => $model_id, 'model_type' => $mode_type], ['actor_id' => $actorId, 'model_id' => $model_id, 'model_type' => $mode_type]);
-        
-        
-        }
+    }
 
     //Q = primereny pocet hodnoceni..
     //https://math.stackexchange.com/questions/942738/algorithm-to-calculate-rating-based-on-multiple-reviews-using-both-review-score.
@@ -113,10 +110,9 @@ class Utils {
 
     public static function slug($title) {
         $slugify = new Slugify();
-        $slug =  $slugify->slugify($title);
+        $slug = $slugify->slugify($title);
         return $slug;
     }
-
 
     public static function get_numerics($str) {
         preg_match_all('/\d+/', $str, $matches);
@@ -127,8 +123,46 @@ class Utils {
         return date('Y-m-d', strToTime("now - $age years"));
     }
 
-    public static function validDate($date){
-        return (bool)strtotime($date);
+    public static function validDate($date) {
+        return (bool) strtotime($date);
+    }
+
+    public static function remote_file_exists($patch) {
+        $ch = curl_init($patch);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_exec($ch);
+        $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //$retcode >= 400 -> not found, $retcode = 200, found.
+        curl_close($ch);
+        if ($retcode == 200) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function compareFiles($file_a, $file_b) {
+        if (filesize($file_a) == filesize($file_b)) {
+            
+            $fp_a = fopen($file_a, 'rb');
+            $fp_b = fopen($file_b, 'rb');
+
+            while (($b = fread($fp_a, 4096)) !== false) {
+                $b_b = fread($fp_b, 4096);
+                if ($b !== $b_b) {
+                    fclose($fp_a);
+                    fclose($fp_b);
+                    return false;
+                }
+            }
+
+            fclose($fp_a);
+            fclose($fp_b);
+
+            return true;
+        }
+
+        return false;
     }
 
 }

@@ -16,6 +16,7 @@ class CreateActorsTable extends Migration {
             $table->increments('id');
             $table->integer('thetvdb_id')->unsigned()->unique();
             $table->string('name', 180)->nullable();
+            $table->string('slug')->nullable();
             $table->string('role', 180)->nullable();
             $table->integer('sort')->unsigned()->nullable();
             $table->boolean('active')->default(true);

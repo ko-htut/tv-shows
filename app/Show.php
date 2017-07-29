@@ -37,7 +37,7 @@ class Show extends Authenticatable {
     public function translation($lang = null) {
         $lang = isset($lang) ? $lang : DEF_TRANSLATION;
         $translation = $this->hasMany('App\ShowTranslation', 'show_id', 'id')->where('lang', '=', $lang)->first();
-        if (!$translation->title) {
+        if (isset($translation) && !$translation->title) {
             $translations = $this->hasMany('App\ShowTranslation', 'show_id', 'id')->get();
             foreach ($translations as $tr) {
                 if (!$tr->title) {
@@ -53,8 +53,12 @@ class Show extends Authenticatable {
     public function url($lang = null) {
         $lang = isset($lang) ? $lang : DEF_LANG;
         $slug = $this->translation($lang)->slug;
-        $prefix = ($lang == DEF_LANG) ? '/shows/' : $lang . '/shows/';
-        return $prefix . $slug;
+        $prefix = ($lang == DEF_LANG) ? '/shows/' : '/' . $lang . '/shows/';
+        if (!empty($slug)) {
+            return $prefix . $slug;
+        }else{
+            return $prefix . $this->id;
+        }
     }
 
     public function fanart() {
@@ -79,18 +83,20 @@ class Show extends Authenticatable {
     }
 
     public function fanarts() {
-        $fanarts = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'fanart')->orderBy('sort', 'desc')->get(); //
+        $fanarts = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'fanart')->orderBy('sort', 'desc')->limit(10)->get(); //
         foreach ($fanarts as &$fanart) {
-            $ch = curl_init($fanart->external_patch);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            //$retcode >= 400 -> not found, $retcode = 200, found.
-            curl_close($ch);
-            if ($retcode != 200) {
-                \App\File::destroy($fanart->id);
-                unset($fanart);
-            }
+            /*
+              $ch = curl_init($fanart->external_patch);
+              curl_setopt($ch, CURLOPT_NOBODY, true);
+              curl_exec($ch);
+              $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+              //$retcode >= 400 -> not found, $retcode = 200, found.
+              curl_close($ch);
+              if ($retcode != 200) {
+              \App\File::destroy($fanart->id);
+              unset($fanart);
+              }
+             */
         }
         return $fanarts;
         //dd($fanarts);

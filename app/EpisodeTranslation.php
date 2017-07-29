@@ -35,5 +35,7 @@ class EpisodeTranslation extends Authenticatable {
     public function episode() {
         return $this->belogsTo('App\Episode');
     }
+    
+   
 
 }

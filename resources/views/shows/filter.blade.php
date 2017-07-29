@@ -1,6 +1,4 @@
 <div class="row">
-    <input name="page" value="{{ $page }}" type="hidden">
-
     <div class="input-field col s12 m12 l12">
         <input type="text" id="search" name="search" class="autocomplete" value="@if (isset($_GET['search'])){{ $_GET['search'] }}@endif">
         <label for="search">Vyhledat seriály</label>

@@ -4,6 +4,11 @@
 
     $(function () {
 
+        //Menu
+        $(".button-collapse").sideNav();
+        // Initialize collapsible (uncomment the line below if you use the dropdown variation)
+        $('.collapsible').collapsible();
+
         if ($("form#filter").length) {
             //$('form#filter select[name=genres]').material_select();
             $('form#filter select#genres').material_select();
@@ -121,33 +126,34 @@
             }
         }
 
-
-        var rangeSlider = document.getElementById('runtimeSlider');
-        var $slider = $('#runtimeSlider');
-        noUiSlider.create(rangeSlider, {
-            start: [parseInt($("#sMin").val()), parseInt($("#sMax").val())],
-            connect: true,
-            step: $slider.data('step'),
-            range: {
-                'min': parseInt($("#sMin").val()),
-                'max': parseInt($("#sMax").val()),
-            },
-        });
-        var sMin = document.getElementById('sMin');
-        var sMax = document.getElementById('sMax');
-
-        rangeSlider.noUiSlider.on('slide', function (values, handle) {
-            
-                var value = values[handle];
-                if (handle) {
-                    sMax.value = parseInt(value);
-                    $("#sMax").val(sMax.value).trigger("change");
-                } else {
-                    sMin.value = parseInt(value);
-                    $("#sMin").val(sMin.value).trigger("change");
-                }
-            
-        });
+        /*
+         var rangeSlider = document.getElementById('runtimeSlider');
+         var $slider = $('#runtimeSlider');
+         noUiSlider.create(rangeSlider, {
+         start: [parseInt($("#sMin").val()), parseInt($("#sMax").val())],
+         connect: true,
+         step: $slider.data('step'),
+         range: {
+         'min': parseInt($("#sMin").val()),
+         'max': parseInt($("#sMax").val()),
+         },
+         });
+         var sMin = document.getElementById('sMin');
+         var sMax = document.getElementById('sMax');
+         
+         rangeSlider.noUiSlider.on('slide', function (values, handle) {
+         
+         var value = values[handle];
+         if (handle) {
+         sMax.value = parseInt(value);
+         $("#sMax").val(sMax.value).trigger("change");
+         } else {
+         sMin.value = parseInt(value);
+         $("#sMin").val(sMin.value).trigger("change");
+         }
+         
+         });
+         */
 
     }); // end of document ready
 })(jQuery); // end of jQuery name space

@@ -93,7 +93,7 @@ return [
       | to any of the locales which will be supported by the application.
       |
      */
-    'locale' => 'en',
+    'locale' => 'en', 
     /*
       |--------------------------------------------------------------------------
       | Application Fallback Locale
@@ -104,7 +104,7 @@ return [
       | the language folders that are provided through your application.
       |
      */
-    'fallback_locale' => 'en',
+    'fallback_locale' => 'cs',
     /*
       |--------------------------------------------------------------------------
       | Encryption Key
@@ -184,6 +184,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class, 
+        
 
     ],
 
@@ -233,6 +235,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Image' => Intervention\Image\Facades\Image::class
+        
 
     ],
 

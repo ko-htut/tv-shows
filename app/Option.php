@@ -41,5 +41,12 @@ class Option extends Authenticatable {
         }
         return $this->hasMany('App\OptionTranslation', 'option_id', 'id')->where('lang', '=', $lang)->first();
     }
+    
+    public function url($lang = null) {
+        $lang = isset($lang) ? $lang : DEF_LANG;
+        $slug = $this->translation($lang)->slug;
+        $prefix = ($lang == DEF_LANG) ? '/networks/' : '/' .$lang . '/networks/';
+        return $prefix . $slug;
+    }
 
 }

@@ -3,37 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Language;
+use App\Term;
+use App\File;
 use App\Show;
 use App\Select;
 use DB;
 use App\Functions\Utils;
 use View;
+use Image;
+use Illuminate\Support\Facades\Route;
 
 define('THETVDB_API_KEY', '5EA3012696C40059');
 
 class ShowsController extends LayoutController {
 
-    public function search($query, $lang) {
-        $shows = new Show;
-        if (isset($query)) {
-            //Search
-            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
-            $shows = $shows->where('translation.title', 'LIKE', "%$query%");
-            //$shows = $shows->where('translation.lang', '=', $lang); ////All translations
-            $shows = $shows->select('shows.*')->distinct();
-            $shows = $shows->paginate(100);
-        }
-        $result = null;
-        foreach ($shows as $show) {
-            $name = $show->translation($lang)->title;
-            $img = $show->poster()->external_patch;
-            $result[$name] = $img;
-        }
-        return json_encode($result);
+    public function __construct() {
+        parent::__construct();
     }
 
-    public function listing($lang = DEF_LANG) {
-        //die("x");
+    public function index($lang = DEF_LANG) {
+
 
         $filter = [
             'genres' => \App\Term::all(),
@@ -49,8 +38,8 @@ class ShowsController extends LayoutController {
                 'rating' => 'Rating',
             ],
         ];
-        //dd($filter);
-        $limit = 40;
+
+        $limit = 2 * 3 * 5;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $next_page = $page + 1;
 
@@ -67,7 +56,7 @@ class ShowsController extends LayoutController {
             $shows = $shows->whereIn('ttm.term_id', $_GET['genre']);
         }
         //Options
-        $optionsKeys = ['network']; //
+        $optionsKeys = ['network'];
         $options = [];
         foreach ($optionsKeys as $key) {
             if (isset($_GET[$key])) {
@@ -89,22 +78,16 @@ class ShowsController extends LayoutController {
 
 
         $results = $shows->count('shows.id'); //'shows.id'
+        //$shows->orderBy('id', 'DESC');
         //Order
         if (isset($_GET['order']) && !empty($_GET['order'])) {
             $shows = $shows->orderBy($_GET['order'], 'DESC');
         }
 
 
-        //$results = $shows->groupBy('shows.id');//'shows.id'
-
-
         $shows = $shows->paginate($limit);
         $more = ceil($results / $limit) > $page ? true : false;
 
-        //Counting future clicks
-
-
-        /* select distinct `shows`.* from `shows` inner join `terms_to_models` as `ttm` on `ttm`.`model_id` = `shows`.`id` where `ttm`.`term_id` in (1,2,3,4,5,6,7,8,9,10,11,12,13) */
         //Filter
         if (Utils::isAjax()) {
 
@@ -128,19 +111,32 @@ class ShowsController extends LayoutController {
 
     public function detailTranslate($lang = null, $slug = null) {
 
-        $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                ->where('slug', '=', $slug)
-                ->where('lang', '=', $lang)
-                ->select('shows.*')// just to avoid fetching anything from joined table
-                ->first();
-
-
-
-        if (!$show) {
+        if (!is_numeric($slug)) {
             $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
                     ->where('slug', '=', $slug)
-                    ->select('shows.*')
-                    ->firstOrFail();
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
+
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('slug', '=', $slug)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
+        } else {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('shows.id', '=', $slug)
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
+
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('shows.id', '=', $slug)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
         }
 
         if (isset($_GET['update']) && $_GET['update'] == 'true') {
@@ -148,25 +144,29 @@ class ShowsController extends LayoutController {
             $c->updateShow($show->thetvdb_id);
         }
 
-        if (Utils::isAjax()) {
+        $season = null;
+        $seasonNum = null;
+        if (Utils::isAjax() && isset($_GET['season'])) {
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");
-
-            if ($_GET['season'] > 0) {
-                $season = $show->seasonEpisodes($_GET['season']);
-                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
-                $snippets = ['snippet-season-' . $_GET['season'] => $view];
-                print json_encode(['snippets' => $snippets]);
-                exit();
-            }
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+            $season = $show->seasonEpisodes($_GET['season']);
+            $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
+            $snippets = ['snippet-season-' . $_GET['season'] => $view];
+            print json_encode(['snippets' => $snippets]);
+            exit();
+        } else if (isset($_GET['season'])) {
+            $season = $show->seasonEpisodes($_GET['season']);
+            $seasonNum = $_GET['season'];
         }
 
-        return view('shows.detail', compact(['show', 'lang']));
+        return view('shows.detail', compact(['show', 'lang', 'season', 'seasonNum']));
     }
 
     //TODO COPY
-
     public function detail($slug) {
         $lang = DEF_LANG;
         $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
@@ -187,20 +187,26 @@ class ShowsController extends LayoutController {
             $c->updateShow($show->thetvdb_id);
         }
 
-        if (Utils::isAjax()) {
+        $season = null;
+        $seasonNum = null;
+        if (Utils::isAjax() && isset($_GET['season'])) {
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");
-
-            if ($_GET['season'] > 0) {
-                $season = $show->seasonEpisodes($_GET['season']);
-                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
-                $snippets = ['snippet-season-' . $_GET['season'] => $view];
-                print json_encode(['snippets' => $snippets]);
-                exit();
-            }
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+            $season = $show->seasonEpisodes($_GET['season']);
+            $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
+            $snippets = ['snippet-season-' . $_GET['season'] => $view];
+            print json_encode(['snippets' => $snippets]);
+            exit();
+        } else if (isset($_GET['season'])) {
+            $season = $show->seasonEpisodes($_GET['season']);
+            $seasonNum = $_GET['season'];
         }
-        return view('shows.detail', compact(['show', 'lang']));
+
+        return view('shows.detail', compact(['show', 'lang', 'season', 'seasonNum']));
     }
 
     public function thetvdbshows() {
@@ -341,7 +347,7 @@ class ShowsController extends LayoutController {
                         'show_id' => $showId,
                         'lang' => $lang,
                         'title' => trim($xml->Series->SeriesName),
-                        'slug' => Utils::slugify(trim($xml->Series->SeriesName)),
+                        'slug' => Utils::slug(trim($xml->Series->SeriesName)),
                         'content' => trim($xml->Series->Overview),
                     ];
                     $translation = \App\ShowTranslation::firstOrCreate(array_filter($translation));
@@ -374,7 +380,7 @@ class ShowsController extends LayoutController {
                             'episode_id' => $episodeId,
                             'lang' => $lang,
                             'title' => trim($episode->EpisodeName),
-                            'slug' => Utils::slugify(trim($episode->EpisodeName)),
+                            'slug' => Utils::slug(trim($episode->EpisodeName)),
                             'content' => trim($episode->Overview),
                         ];
                         \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
@@ -389,7 +395,7 @@ class ShowsController extends LayoutController {
                         'show_id' => $showId,
                         'lang' => $lang,
                         'title' => $title,
-                        'slug' => Utils::slugify($title),
+                        'slug' => Utils::slug($title),
                         'content' => $content,
                     ];
                     \App\ShowTranslation::firstOrCreate(array_filter($translation));
@@ -420,7 +426,7 @@ class ShowsController extends LayoutController {
                             'episode_id' => $episodeId,
                             'lang' => $lang,
                             'title' => $title,
-                            'slug' => Utils::slugify($title),
+                            'slug' => Utils::slug($title),
                             'content' => $content,
                         ];
                         \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
@@ -432,21 +438,29 @@ class ShowsController extends LayoutController {
 
     //New Api
     public function import2() {
-        ini_set('max_execution_time', 60 * 60 * 10);
+        //ini_set('max_execution_time', 60 * 60 * 10);
+        //$pg = 8;
+        //$lim = 60;
 
-        $pg = 8;
-        $lim = 60;
+        $showsInDb = DB::table('shows')->select('thetvdb_id')->get()->toArray();
+        $arr = [];
+        foreach ($showsInDb as $s) {
+            $arr[] = $s->thetvdb_id;
+        }
 
         $shows = DB::table('thetvdbshows')
                 ->select('*')
                 ->where('rating_count', '>=', 20)
                 ->where('fanart', '=', 1)
                 ->where('poster', '=', 1)
+                ->whereNotIn('thetvdb_id', $arr)
                 ->orderBy('rating_count', 'desc')
-                ->limit($lim)
-                ->offset($lim * $pg - $lim)
+                ->limit(1)
+                //->limit($lim)                
+                //->offset($lim * $pg - $lim)
                 ->get();
-
+        
+        //dd($shows);
 
         $client = new \Adrenth\Thetvdb\Client();
         $token = $client->authentication()->login(THETVDB_API_KEY);
@@ -508,12 +522,13 @@ class ShowsController extends LayoutController {
 
                     $client->setLanguage('en');
                     $actorsData = $client->series()->getActors($thetvdbId)->getData()->all();
-
+                        
                     if (!empty($actorsData)) {
                         foreach ($actorsData as $actor) {
                             $a = [
                                 'thetvdb_id' => $actor->values['id'],
                                 'name' => $actor->values['name'],
+                                'slug' => Utils::slug($actor->values['name']),
                                 'role' => $actor->values['role'],
                                 'sort' => $actor->values['sortOrder'],
                                 'image' => $actor->values['image'],
@@ -521,7 +536,7 @@ class ShowsController extends LayoutController {
                             Utils::insertActor($a, $showId, 'App\Show');
                         }
                     }
-
+                    //dd($actorsData);
                     //images
                     $client->setLanguage('en');
                     $posters = $client->series()->getImagesWithQuery($thetvdbId, ['keyType' => 'poster'])->getData()->all();
@@ -600,7 +615,7 @@ class ShowsController extends LayoutController {
                                 'episode_id' => $episodeId,
                                 'lang' => $lang,
                                 'title' => $e->values['episodeName'],
-                                'slug' => Utils::slugify($e->values['episodeName']),
+                                'slug' => Utils::slug($e->values['episodeName']),
                                 'content' => $e->values['overview'],
                             ];
                             \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
@@ -676,7 +691,7 @@ class ShowsController extends LayoutController {
 
 
                 if (!($showData->values['lastUpdated'] > $dbLastUpdated)) {
-                    dd('do not update... ' . $showData->values['lastUpdated'] . ' !bigger than ' . $dbLastUpdated);
+                    //dd('do not update... ' . $showData->values['lastUpdated'] . ' !bigger than ' . $dbLastUpdated);
                 }
 
 
@@ -728,6 +743,7 @@ class ShowsController extends LayoutController {
                         $a = [
                             'thetvdb_id' => $actor->values['id'],
                             'name' => $actor->values['name'],
+                            'slug' => $actor->values['name'],
                             'role' => $actor->values['role'],
                             'sort' => $actor->values['sortOrder'],
                             'image' => $actor->values['image'],
@@ -735,6 +751,8 @@ class ShowsController extends LayoutController {
                         Utils::insertActor($a, $showId, 'App\Show');
                     }
                 }
+                
+                //dd($actorsData);
 
                 //images
                 $client->setLanguage('en');
@@ -782,7 +800,7 @@ class ShowsController extends LayoutController {
                     //dd($episodes);
                     foreach ($episodes as $episode) {
                         $e = $client->episodes()->get($episode->values['id']);
-                        dd($e);
+
                         $episodeArr = [
                             'show_id' => $showId,
                             'thetvdb_id' => $e->values['id'],
@@ -834,6 +852,8 @@ class ShowsController extends LayoutController {
 
                 $client->setLanguage($lang);
                 $showData = $client->series()->get($theTvDbId);
+
+                $showId = \App\Show::where('thetvdb_id', $theTvDbId)->first()->id;
 
                 $translation = [
                     'show_id' => $showId,
@@ -893,7 +913,6 @@ class ShowsController extends LayoutController {
                 }
             }
         }
-        die("updated");
     }
 
     public function images() {
@@ -901,8 +920,8 @@ class ShowsController extends LayoutController {
         //Than update 
         //UPDATE files SET patch=CONCAT('/',patch) WHERE patch NOT LIKE '/%';
         $images = \App\File::where('patch', NULL)->orderBy('id', 'asc')->limit(1000)->get();
-        
-        
+
+
         foreach ($images as $img) {
 
             if (isset($img->external_patch)) {
@@ -944,8 +963,27 @@ class ShowsController extends LayoutController {
                 }
             }
 
-            echo $img->id . ' ' . $img->model_type . '' . $img->model_id . '' . $img->type . "<br>";
+            //echo $img->id . ' ' . $img->model_type . '' . $img->model_id . '' . $img->type . "<br>";
         }
+    }
+
+    public function search($query, $lang) {
+        $shows = new Show;
+        if (isset($query)) {
+            //Search
+            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
+            $shows = $shows->where('translation.title', 'LIKE', "%$query%");
+            //$shows = $shows->where('translation.lang', '=', $lang); ////All translations
+            $shows = $shows->select('shows.*')->distinct();
+            $shows = $shows->paginate(100);
+        }
+        $result = null;
+        foreach ($shows as $show) {
+            $name = $show->translation($lang)->title;
+            $img = $show->poster()->external_patch;
+            $result[$name] = $img;
+        }
+        return json_encode($result);
     }
 
 }
