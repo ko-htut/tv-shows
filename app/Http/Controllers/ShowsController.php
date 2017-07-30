@@ -22,8 +22,9 @@ class ShowsController extends LayoutController {
     }
 
     public function index($lang = DEF_LANG) {
+        
 
-
+        //Find folfder
         $filter = [
             'genres' => \App\Term::all(),
             'genres_counter' => DB::table('terms_to_models')->select(DB::raw('term_id, count(*) as count'))->groupBy('term_id')->get()->keyBy('term_id')->toArray(),
@@ -35,9 +36,12 @@ class ShowsController extends LayoutController {
                 'max' => Show::max('runtime'),
             ],
             'orders' => [
-                'rating' => 'Rating',
+                'rating' => 'Hodnocení',
+                'created_at' => 'Data přidání',
             ],
         ];
+
+
 
         $limit = 2 * 3 * 5;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
@@ -78,10 +82,12 @@ class ShowsController extends LayoutController {
 
 
         $results = $shows->count('shows.id'); //'shows.id'
-        //$shows->orderBy('id', 'DESC');
         //Order
         if (isset($_GET['order']) && !empty($_GET['order'])) {
             $shows = $shows->orderBy($_GET['order'], 'DESC');
+        } else {
+            $shows->orderBy('ended', 'ASC');
+            //$shows->orderBy('id', 'DESC');
         }
 
 
@@ -100,13 +106,13 @@ class ShowsController extends LayoutController {
                 exit();
             } else {
                 $view = View::make('shows.ajax.items', compact(['shows', 'lang', 'page', 'next_page', 'more', 'results']))->render();
-                $snippets = [$_GET['page'] == 1 ? 'snippet-wrapper' : 'snippet-more' => $view];
+                $snippets = [isset($_GET['page']) && $_GET['page'] == 1 ? 'snippet-wrapper' : 'snippet-more' => $view];
                 print json_encode(['snippets' => $snippets]);
                 exit();
             }
         }
 
-        return view('shows.listing', compact(['filter', 'shows', 'lang', 'page', 'next_page', 'more', 'results']));
+        return view('shows.index', compact(['filter', 'shows', 'lang', 'page', 'next_page', 'more', 'results']));
     }
 
     public function detailTranslate($lang = null, $slug = null) {
@@ -232,272 +238,76 @@ class ShowsController extends LayoutController {
         }
     }
 
-    public function import() {
-
-        ini_set('max_execution_time', 60 * 60 * 10);
-        //$langs_xml = file_get_contents("http://thetvdb.com/api/5EA3012696C40059/languages.xml");
-        $langs = [
-            'en', 'cs', 'de', 'es', 'fr', 'pl', 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
-        ];
-
-        $shows = DB::table('thetvdbshows')
-                ->select('thetvdb_id')
-                ->where('rating_count', '>=', 50)
-                ->where('fanart', '=', 1)
-                ->where('poster', '=', 1)
-                ->get();
-        // dd($shows);
-
-        foreach ($shows as $item) {
-
-            $id = $item->thetvdb_id;
-            $enTitle = null;
-            $enContent = null;
-            $showId = null;
-
-            foreach ($langs as $lang) {
-                $c = 0;
-                $xml = null;
-                $data = null;
-                $error = false;
-                while (!$data) {
-                    $data = file_get_contents("http://thetvdb.com/api/" . THETVDB_API_KEY . "/series/$id/all/$lang.xml");
-                    libxml_use_internal_errors(true);
-                    $doc = simplexml_load_string($data);
-                    $xml = explode("\n", $data);
-                    if (!$doc) {
-                        $errors = libxml_get_errors();
-                        libxml_clear_errors();
-                        $error = true;
-                        break;
-                    } else {
-                        $xml = simplexml_load_string($data);
-                    }
-
-
-
-                    $c++;
-                    if ($c == 5) {
-                        $error = true;
-                        echo "Too many requests.</br>";
-                        break;
-                    }
-                }
-
-                if ($error)
-                    break;
-
-
-                Language::firstOrCreate(['code' => $lang]);
-
-                if ($lang == "en") {
-                    $enTitle = trim($xml->Series->SeriesName);
-                    $enContent = trim($xml->Series->Overview);
-                    $show = [
-                        'thetvdb_id' => trim($xml->Series->id),
-                        'imdb_id' => trim($xml->Series->IMDB_ID),
-                        'first_aired' => trim($xml->Series->FirstAired),
-                        'finale_aired' => trim($xml->Series->finale_aired),
-                        'air_day' => date('N', strtotime(trim($xml->Series->Airs_DayOfWeek))),
-                        'air_time' => trim($xml->Series->Airs_Time),
-                        'rating' => trim($xml->Series->Rating),
-                        'rating_count' => trim($xml->Series->RatingCount),
-                        'runtime' => trim($xml->Series->Runtime),
-                        'last_updated' => trim($xml->Series->lastupdated),
-                    ];
-                    $showId = \App\Show::firstOrCreate(array_filter($show))->id;
-
-                    //Options
-                    Utils::insertOption('status', 'select', $lang, trim($xml->Series->Status), $showId, 'App\Show');
-                    Utils::insertOption('network', 'select', $lang, trim($xml->Series->Network), $showId, 'App\Show');
-                    Utils::insertOption('content_rating', 'select', $lang, trim($xml->Series->ContentRating), $showId, 'App\Show');
-
-                    //Terms
-                    $terms = array_filter(explode('|', trim($xml->Series->Genre)));
-                    if (!empty($terms)) {
-                        foreach ($terms as $term) {
-                            Utils::insertTerm('genre', $term, 'en', $showId, 'App\Show');
-                        }
-                    }
-
-                    //Actors
-                    $actors = array_filter(explode('|', trim($xml->Series->Actors)));
-                    if (!empty($actors)) {
-                        foreach ($actors as $name) {
-                            Utils::insertActor($name, $showId, 'App\Show');
-                        }
-                    }
-
-                    //Images
-                    $fanart = trim($xml->Series->fanart);
-                    if (!empty($fanart)) {
-                        $fanart = 'http://thetvdb.com/banners/' . $fanart;
-                        $arr = ['type' => 'fanart', 'extension' => 'jpg', 'external_patch' => $fanart, 'model_id' => $showId, 'model_type' => 'App\Show'];
-                        $file = File::firstOrCreate($arr);
-                    }
-
-                    $poster = trim($xml->Series->poster);
-                    if (!empty($poster)) {
-                        $poster = 'http://thetvdb.com/banners/' . $poster;
-                        $arr = ['type' => 'poster', 'extension' => 'jpg', 'external_patch' => $poster, 'model_id' => $showId, 'model_type' => 'App\Show'];
-                        $file = File::firstOrCreate($arr);
-                    }
-
-                    $translation = [
-                        'show_id' => $showId,
-                        'lang' => $lang,
-                        'title' => trim($xml->Series->SeriesName),
-                        'slug' => Utils::slug(trim($xml->Series->SeriesName)),
-                        'content' => trim($xml->Series->Overview),
-                    ];
-                    $translation = \App\ShowTranslation::firstOrCreate(array_filter($translation));
-
-                    //Episodes import
-                    $episodes = $xml->Episode;
-                    foreach ($episodes as $episode) {
-                        $episodeArr = [
-                            'show_id' => $showId,
-                            'thetvdb_id' => trim($episode->id),
-                            'imdb_id' => trim($episode->IMDB_ID),
-                            'first_aired' => trim($episode->FirstAired),
-                            'season_number' => trim($episode->SeasonNumber),
-                            'episode_number' => trim($episode->EpisodeNumber),
-                            'rating' => trim($episode->Rating),
-                            'rating_count' => trim($episode->RatingCount),
-                            'last_updated' => trim($episode->lastupdated),
-                        ];
-                        $episodeId = \App\Episode::firstOrCreate(array_filter($episodeArr))->id;
-
-                        //Images
-                        $thumb = trim($episode->filename);
-                        if (!empty($thumb)) {
-                            $thumb = 'http://thetvdb.com/banners/' . $thumb;
-                            $arr = ['type' => 'thumb', 'extension' => 'jpg', 'external_patch' => $thumb, 'model_id' => $episodeId, 'model_type' => 'App\Episode'];
-                            $file = File::firstOrCreate($arr);
-                        }
-
-                        $episodeTranslation = [
-                            'episode_id' => $episodeId,
-                            'lang' => $lang,
-                            'title' => trim($episode->EpisodeName),
-                            'slug' => Utils::slug(trim($episode->EpisodeName)),
-                            'content' => trim($episode->Overview),
-                        ];
-                        \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
-                    }
-                } else {
-                    $title = trim($xml->Series->SeriesName);
-                    $content = null;
-                    if (substr($enContent, 0, min(100, strlen($enContent))) != substr(trim($xml->Series->Overview), 0, min(100, strlen(trim($xml->Series->Overview))))) {
-                        $content = trim($xml->Series->Overview);
-                    }
-                    $translation = [
-                        'show_id' => $showId,
-                        'lang' => $lang,
-                        'title' => $title,
-                        'slug' => Utils::slug($title),
-                        'content' => $content,
-                    ];
-                    \App\ShowTranslation::firstOrCreate(array_filter($translation));
-                    //Episodes import
-                    $episodes = $xml->Episode;
-                    foreach ($episodes as $episode) {
-                        $title = null;
-                        $content = null;
-                        $episodeArr = [
-                            'show_id' => $showId,
-                            'thetvdb_id' => trim($episode->id),
-                        ];
-                        $episodeId = \App\Episode::firstOrCreate(array_filter($episodeArr))->id;
-                        $dbEpisode = DB::table('episodes_translations')
-                                ->where('lang', 'en')
-                                ->where('episode_id', $episodeId)
-                                ->first();
-
-                        $title = trim($episode->EpisodeName);
-
-                        $enContent = $dbEpisode->content;
-                        $content = null;
-                        if (substr($enContent, 0, min(100, strlen($enContent))) != substr(trim($episode->Overview), 0, min(100, strlen($episode->Overview)))) {
-                            $content = trim($episode->Overview);
-                        }
-
-                        $episodeTranslation = [
-                            'episode_id' => $episodeId,
-                            'lang' => $lang,
-                            'title' => $title,
-                            'slug' => Utils::slug($title),
-                            'content' => $content,
-                        ];
-                        \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
-                    }
-                }
-            }
-        }
-    }
-
     //New Api
-    public function import2() {
-        //ini_set('max_execution_time', 60 * 60 * 10);
+    public function import($thetvdbId = null) {
+        $start = microtime(true);
+        ini_set('max_execution_time', 60 * 60 * 10);
         //$pg = 8;
         //$lim = 60;
+        //dd($thetvdbId);
+        $shows = null;
+        if ($thetvdbId == null) {
+            $showsInDb = DB::table('shows')->select('thetvdb_id')->get()->toArray();
+            $arr = [];
+            foreach ($showsInDb as $s) {
+                $arr[] = $s->thetvdb_id;
+            }
 
-        $showsInDb = DB::table('shows')->select('thetvdb_id')->get()->toArray();
-        $arr = [];
-        foreach ($showsInDb as $s) {
-            $arr[] = $s->thetvdb_id;
+            $shows = DB::table('thetvdbshows')
+                    ->select('*')
+                    ->where('rating_count', '>=', 20)
+                    ->where('fanart', '=', 1)
+                    ->where('poster', '=', 1)
+                    ->whereNotIn('thetvdb_id', $arr)
+                    ->orderBy('rating_count', 'desc')
+                    ->limit(1)
+                    //->limit($lim)                
+                    //->offset($lim * $pg - $lim)
+                    ->get();
+        } else {
+            $shows = DB::table('thetvdbshows')
+                    ->select('*')
+                    ->where('thetvdb_id', '=', $thetvdbId)
+                    ->limit(1)
+                    ->get();
         }
-
-        $shows = DB::table('thetvdbshows')
-                ->select('*')
-                ->where('rating_count', '>=', 20)
-                ->where('fanart', '=', 1)
-                ->where('poster', '=', 1)
-                ->whereNotIn('thetvdb_id', $arr)
-                ->orderBy('rating_count', 'desc')
-                ->limit(1)
-                //->limit($lim)                
-                //->offset($lim * $pg - $lim)
-                ->get();
-        
-        //dd($shows);
 
         $client = new \Adrenth\Thetvdb\Client();
         $token = $client->authentication()->login(THETVDB_API_KEY);
         $client->setToken($token);
 
-        $langs = $client->languages()->all()->getData()->all();
+        /* Inserting the langs
+          $langs = $client->languages()->all()->getData()->all();
 
-        foreach ($langs as $lang) {
-            $lng = [
-                'code' => $lang->values['abbreviation'],
-                'name' => $lang->values['name'],
-                'englishName' => $lang->values['englishName']
-            ];
-            Language::firstOrCreate($lng);
-        }
+          foreach ($langs as $lang) {
+          $lng = [
+          'code' => $lang->values['abbreviation'],
+          'name' => $lang->values['name'],
+          'englishName' => $lang->values['englishName']
+          ];
+          Language::firstOrCreate($lng);
+          }
+
+         */
 
         $langs = [
             'en', 'cs', 'de', 'es', 'fr', 'pl', 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
         ];
 
-        
-        
-        foreach ($shows as $show) {
-            
-            
-            $thetvdbId = $show->thetvdb_id;
-            
-            echo $show->title . ' ' . $show->thetvdb_id . '<br>';
-            foreach ($langs as $lang) {
 
+
+        foreach ($shows as $show) {
+            $thetvdbId = $show->thetvdb_id;
+            echo $show->title . ' ' . $show->thetvdb_id . '<br>';
+            
+            foreach ($langs as $lang) {
                 if ($lang == 'en') {
                     $client->setLanguage($lang);
                     $showData = $client->series()->get($thetvdbId);
                     $data = [
                         'thetvdb_id' => $showData->values['id'],
                         'imdb_id' => $showData->values['imdbId'],
-                        'first_aired' => $showData->values['firstAired'],
+                        'first_aired' => Utils::validDate($showData->values['firstAired']) ? $showData->values['firstAired'] : null,
                         'ended' => $showData->values['status'] == "Ended" ? true : false,
                         'air_day' => date('N', strtotime($showData->values['airsDayOfWeek'])),
                         'air_time' => $showData->values['airsTime'],
@@ -508,10 +318,7 @@ class ShowsController extends LayoutController {
                     ];
 
                     $showId = \App\Show::firstOrCreate($data)->id;
-
-
                     Utils::insertOption('network', 'select', $lang, $showData->values['network'], $showId, 'App\Show');
-
                     $translation = [
                         'show_id' => $showId,
                         'lang' => $lang,
@@ -527,8 +334,13 @@ class ShowsController extends LayoutController {
                     }
 
                     $client->setLanguage('en');
-                    $actorsData = $client->series()->getActors($thetvdbId)->getData()->all();
+
+                    try {
+                        $actorsData = $client->series()->getActors($thetvdbId)->getData()->all();
+                    } catch (\Exception $e) {
                         
+                    }
+
                     if (!empty($actorsData)) {
                         foreach ($actorsData as $actor) {
                             $a = [
@@ -563,7 +375,14 @@ class ShowsController extends LayoutController {
                     }
 
                     $client->setLanguage('en');
-                    $fanarts = $client->series()->getImagesWithQuery($thetvdbId, ['keyType' => 'fanart'])->getData()->all();
+
+
+                    try {
+                        $fanarts = $client->series()->getImagesWithQuery($thetvdbId, ['keyType' => 'fanart'])->getData()->all();
+                    } catch (\Exception $e) {
+                        
+                    }
+
                     if (!empty($fanarts)) {
                         foreach ($fanarts as $fanart) {
 
@@ -672,6 +491,9 @@ class ShowsController extends LayoutController {
                 }
             }
         }
+        $end = microtime(true);
+       
+        echo 'Elapsed time ' . date("H:i:s",($end - $start));;
     }
 
     public function updateShow($theTvDbId) {
@@ -742,24 +564,28 @@ class ShowsController extends LayoutController {
                 }
 
                 $client->setLanguage('en');
-                $actorsData = $client->series()->getActors($theTvDbId)->getData()->all();
-
-                if (!empty($actorsData)) {
+                $actorsData = [];
+                try {
+                    $actorsData = $client->series()->getActors($theTvDbId)->getData()->all();
+                } catch (\Exception $e) {
+                    
+                }
+                if (isset($actorsData) && !empty($actorsData)) {
                     foreach ($actorsData as $actor) {
                         $a = [
                             'thetvdb_id' => $actor->values['id'],
                             'name' => $actor->values['name'],
-                            'slug' => $actor->values['name'],
+                            'slug' => Utils::slug($actor->values['name']),
                             'role' => $actor->values['role'],
                             'sort' => $actor->values['sortOrder'],
                             'image' => $actor->values['image'],
                         ];
-                        Utils::insertActor($a, $showId, 'App\Show');
+                        Utils::insertActor
+                                ($a, $showId, 'App\Show');
                     }
                 }
-                
-                //dd($actorsData);
 
+                //dd($actorsData);
                 //images
                 $client->setLanguage('en');
                 $posters = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'poster'])->getData()->all();
@@ -778,7 +604,13 @@ class ShowsController extends LayoutController {
                 }
 
                 $client->setLanguage('en');
-                $fanarts = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'fanart'])->getData()->all();
+                
+                $fanarts = [];
+                try {
+                    $fanarts = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'fanart'])->getData()->all();
+                } catch (\Exception $e) {
+                    
+                }
                 if (!empty($fanarts)) {
                     foreach ($fanarts as $fanart) {
 

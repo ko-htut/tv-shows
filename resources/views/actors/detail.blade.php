@@ -7,22 +7,24 @@
 @section('content')
 
 <div class="row" itemscope itemtype="http://schema.org/Person">
-<div class="col s12 m6 l6" style="width: 300px;">
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            @foreach ($actors as $a)
-            <div class="swiper-slide">
-                <!-- Required swiper-lazy class and image source specified in data-src attribute -->
-                <img data-src="{{$a->thumb()->getSrc(300) }}" class="swiper-lazy">
-                <!-- Preloader image -->
-                <div class="swiper-lazy-preloader swiper-lazy-preloader-black"></div>
+    <div class="col s12 m6 l6" style="width: 300px;">
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                @foreach ($actors as $a)
+                @if($a->thumb() !== null)
+                <div class="swiper-slide">
+                    <!-- Required swiper-lazy class and image source specified in data-src attribute -->
+                    <img data-src="{{$a->thumb()->getSrc(300) }}" class="swiper-lazy">
+                    <!-- Preloader image -->
+                    <div class="swiper-lazy-preloader swiper-lazy-preloader-black"></div>
+                </div>
+                @endif
+                @endforeach
             </div>
-            @endforeach
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
         </div>
-        <!-- Add Pagination -->
-        <div class="swiper-pagination"></div>
     </div>
-</div>
 </div>
 
 <!-- Initialize Swiper -->
@@ -43,7 +45,7 @@
 
 <div class="row">
     @foreach($shows as $show)
-      @include('shows.list-item')
+    @include('shows.list-item')
     @endforeach
 </div>
 

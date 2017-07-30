@@ -1,10 +1,9 @@
 <div class="row">
+    <!--
     <div class="input-field col s12 m12 l12">
         <input type="text" id="search" name="search" class="autocomplete" value="@if (isset($_GET['search'])){{ $_GET['search'] }}@endif">
         <label for="search">Vyhledat seriály</label>
     </div>
-
-
     <div class="input-field col l4 m6 s12">
         <select multiple name="genre[]" id="genres">
             <option value="" disabled selected>Vyberte žánry</option>
@@ -14,16 +13,18 @@
         </select>
         <label>Žánry</label>
     </div>
+   
     <div class="input-field col l4 m6 s12">
         <select multiple name="network[]" id="networks">
             <option value="" disabled selected>Vyberte televize</option>
             @foreach ($filter['networks'] as $network)
-            <option value="{{ $network->id }}" @if (isset($_GET['network']) && in_array($network->id, $_GET['network']))selected @endif>{{ $network->translation()->value }} ({{ $filter['options_counter'][$network->id]->count }})</option>
+                @if($network->translation() !== null)
+                    <option value="{{ $network->id }}" @if (isset($_GET['network']) && in_array($network->id, $_GET['network']))selected @endif>{{ $network->translation()->value }} ({{ $filter['options_counter'][$network->id]->count }})</option>
+                @endif
             @endforeach  
         </select>
         <label>Televize</label>
     </div>
-    
     <div class="input-field col l4 m12 s12">
         <select name="order" id="order">
             <option value="" disabled selected>Řadit podle</option>
@@ -33,8 +34,9 @@
         </select>
         <label>Řazení</label>
     </div>
-    
+   -->
     <!--
+    Edit runtime
     <div class="input-field col l6 m6 s6" style="">
         <div id="runtimeSlider" data-step="1">
         </div>

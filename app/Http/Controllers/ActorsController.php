@@ -80,7 +80,7 @@ class ActorsController extends LayoutController {
 //------------------------------------------------------------------------------
 /* Setting the slugs for actors */
 /*
-$actors = Actor::all();
+$actors = \App\Actor::all();
 //Set the networkss slugs
 foreach ($actors as $item) {
     $item = $item->setSlug();

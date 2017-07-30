@@ -30,7 +30,7 @@ class Utils {
         if (!empty($value)) {
             $selectId = Select::firstOrCreate(['title' => $title, 'type' => $type])->id;
             $optionId = Option::firstOrCreate(['select_id' => $selectId, 'slug' => Utils::slug($value)])->id;
-            $optionTranslationId = OptionTranslation::firstOrCreate(['option_id' => $optionId, 'lang' => $lang, 'value' => ucfirst($value)])->id;
+            $optionTranslationId = OptionTranslation::firstOrCreate(['option_id' => $optionId, 'lang' => $lang, 'value' => ucfirst($value), 'slug' => Utils::slug($value)])->id;
             $pivot = OptionPivot::firstOrCreate(['option_id' => $optionId, 'model_id' => $model_id, 'model_type' => $mode_type]);
         }
     }

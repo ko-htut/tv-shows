@@ -52,11 +52,14 @@ class Show extends Authenticatable {
 
     public function url($lang = null) {
         $lang = isset($lang) ? $lang : DEF_LANG;
-        $slug = $this->translation($lang)->slug;
         $prefix = ($lang == DEF_LANG) ? '/shows/' : '/' . $lang . '/shows/';
+        $slug = null;
+        if ($this->translation($lang) !== null) {
+            $slug = $this->translation($lang)->slug;
+        }
         if (!empty($slug)) {
             return $prefix . $slug;
-        }else{
+        } else {
             return $prefix . $this->id;
         }
     }

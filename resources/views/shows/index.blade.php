@@ -3,10 +3,12 @@
 @section('meta_description', 'Televizní seriály, nadcházející epizody, televizní kalendář')
 @section('page_title', 'Seriály' )
 @section('content')
-<form class="ajax" id="filter" action="GET">
+<!-- index -->
+<form class="ajax" id="filter" action="GET"></form>
      @include('shows.filter')
     <div class="row">
         @include('shows.ajax.items')
     </div>
 </form>
 @endsection
+

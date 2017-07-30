@@ -10,12 +10,14 @@
     <div class="swiper-container">
         <div class="swiper-wrapper">
             @foreach ($show->fanarts() as $fanart)
+            @if($fanart !== null)
             <div class="swiper-slide">
                 <!-- Required swiper-lazy class and image source specified in data-src attribute -->
                 <img data-src="{{ $fanart->getSrc(1187) }}" class="swiper-lazy">
                 <!-- Preloader image -->
                 <div class="swiper-lazy-preloader swiper-lazy-preloader-black"></div>
             </div>
+            @endif
             @endforeach
         </div>
         <!-- Add Pagination -->
@@ -48,11 +50,12 @@
             {{ $genre->translation()->title }}
         </div>
         @endforeach
+        @if( $show->network() !== null)
         <div class="chip">
             {{ $show->network()->translation()->value }}
             <i class="chip-icon material-icons">tv</i>
         </div>
-
+        @endif
         <div class="chip">
             {{ $show->runtime }} min
             <i class="chip-icon material-icons">timer</i>

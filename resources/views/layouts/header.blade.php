@@ -18,6 +18,7 @@
                 </div></li>
             <li><a href="{{$layout['lang_prefix']}}/"><i class="material-icons smaller">explore</i>Seriály</a></li>
             <li><a href="{{$layout['lang_prefix']}}/calendar"><i class="material-icons smaller">today</i>Kalendář</a></li>
+            @if($layout['genres'] !== null)
             <li>
                 <ul class="collapsible collapsible-accordion">
                     <li>
@@ -25,7 +26,9 @@
                         <div class="collapsible-body">
                             <ul>
                                 @foreach($layout['genres'] as $genre)
+                                @if($genre !== null)
                                 <li><a href="{{$layout['lang_prefix']}}/genres/{{ $genre->translation()->slug }}">{{ $genre->translation()->title }}<span class="counter">{{ $layout['genres_counter'][$genre->id]->count }}</span></a></li> 
+                                @endif
                                 @endforeach 
 
                             </ul>
@@ -33,6 +36,8 @@
                     </li>
                 </ul>
             </li>
+            @endif
+            @if($layout['networks'] !== null)
             <li>
                 <ul class="collapsible collapsible-accordion">
                     <li>
@@ -40,14 +45,21 @@
                         <div class="collapsible-body">
                             <ul>
                                 @foreach($layout['networks'] as $network)
-                                <li><a href="{{$layout['lang_prefix']}}/networks/{{ $network->slug }}">{{ $network->translation()->value }}<span class="counter">{{ $layout['options_counter'][$network->id]->count }}</span></a></li> 
+                                @if($network !== null)
+                                <li>
+                                    <a href="{{$layout['lang_prefix']}}/networks/{{ $network->slug }}">
+                                        @if($network->translation() !== null){{ $network->translation()->value }}@endif
+                                        @if(isset($network->id) && isset($layout['options_counter'][$network->id]))<span class="counter">{{ $layout['options_counter'][$network->id]->count }}</span>@endif
+                                    </a>
+                                </li> 
+                                @endif
                                 @endforeach 
-
                             </ul>
                         </div>
                     </li>
                 </ul>
             </li>
+            @endif
             <li><a href="{{$layout['lang_prefix']}}/actors/"><i class="material-icons smaller">supervisor_account</i>Herci</a></li>
             <li><div class="divider"></div></li>
             <li><a class="subheader">Ostatní</a></li>
@@ -61,7 +73,6 @@
                                 @foreach($layout['langs'] as $lang)
                                 <li><a href="<?php echo url('/'); ?>/{{$lang->code}}">{{$lang->name}}<span class="counter">{{$lang->englishName}}</span></a></li>
                                 @endforeach 
-
                             </ul>
                         </div>
                     </li>
