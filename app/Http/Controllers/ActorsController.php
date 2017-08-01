@@ -28,6 +28,10 @@ class ActorsController extends LayoutController {
         $actors = $actors->distinct('slug')->orderBy('sort', 'asc');
         $results = $actors->count('slug');
         $actors = $actors->paginate(4 * 3 * 5);
+        
+        if(isset($_GET['update'])){
+            $this->updateSlugs();
+        }
 
         return view('actors.index', compact(['actors']));
     }
@@ -35,7 +39,7 @@ class ActorsController extends LayoutController {
     public function detail($slug) {
 
         $lang = 'cs';
-        
+
         $actors = Actor::where('slug', $slug)->get();
         $actor = $actors[0];
         $ids = [];
@@ -53,10 +57,10 @@ class ActorsController extends LayoutController {
 
         return view('actors.detail', compact(['actor', 'actors', 'shows']));
     }
-    
+
     public function detailTranslation($lang, $slug) {
 
-        
+
         $actors = Actor::where('slug', $slug)->get();
         $actor = $actors[0];
         $ids = [];
@@ -75,15 +79,12 @@ class ActorsController extends LayoutController {
         return view('actors.detail', compact(['actor', 'actors', 'shows']));
     }
 
-}
+    public function updateSlugs() {
 
-//------------------------------------------------------------------------------
-/* Setting the slugs for actors */
-/*
-$actors = \App\Actor::all();
-//Set the networkss slugs
-foreach ($actors as $item) {
-    $item = $item->setSlug();
-    //dd($t);
+        $actors = \App\Actor::all();
+        foreach ($actors as $item) {
+            $item = $item->setSlug();
+        }
+    }
+
 }
-*/

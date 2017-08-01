@@ -1,7 +1,6 @@
 <div class="col s6 m4 l3">
     <div class="card actor">
         <div class="card-image">
-
             @if($actor->thumb() !== null)
                 <img src="{{ $actor->thumb()->src() }}"  alt="{{$actor->name}} ">
             @endif

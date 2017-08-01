@@ -1,10 +1,9 @@
 <div id="snippet-wrapper">
     @if(isset($page) && $page == 1)
     <div class="input-field col l12 m12 s12">
-        <p>Found {{ $results }} results</p>
+        <p>Nalezeno {{ $results }} seriálů</p>
     </div>
     @endif
-    
     @if($shows !== null)
     @foreach ($shows as $show)
     <div class="col s12 m6 l4">

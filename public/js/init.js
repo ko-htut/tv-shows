@@ -9,6 +9,9 @@
         // Initialize collapsible (uncomment the line below if you use the dropdown variation)
         $('.collapsible').collapsible();
 
+        //Paralax
+        $('.parallax').parallax();
+        
         if ($("form#filter").length) {
             //$('form#filter select[name=genres]').material_select();
             $('form#filter select#genres').material_select();

@@ -5,56 +5,27 @@
 @section('page_title', $show->translation($layout['lang'])->title)
 
 @section('content')
+
+
+@if($show->fanart() !== null)
 <div class="row" itemscope itemtype="http://schema.org/TVSeries">
-
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            @foreach ($show->fanarts() as $fanart)
-            @if($fanart !== null)
-            <div class="swiper-slide">
-                <!-- Required swiper-lazy class and image source specified in data-src attribute -->
-                <img data-src="{{ $fanart->getSrc(1187) }}" class="swiper-lazy">
-                <!-- Preloader image -->
-                <div class="swiper-lazy-preloader swiper-lazy-preloader-black"></div>
-            </div>
-            @endif
-            @endforeach
-        </div>
-        <!-- Add Pagination -->
-        <div class="swiper-pagination"></div>
+    <div class="parallax-container center-block" style="max-width: 1280px;">
+        <div class="parallax"><img src="{{ $show->fanart()->getSrc(1187) }}"></div>
     </div>
-
 </div>
-
-<!-- Initialize Swiper -->
-<script>
-    var swiper = new Swiper('.swiper-container', {
-        pagination: '.swiper-pagination',
-        paginationClickable: true,
-        //nextButton: '.swiper-button-next',
-        //prevButton: '.swiper-button-prev',
-        // Disable preloading of all images
-        preloadImages: false,
-        // Enable lazy loading
-        lazyLoading: true,
-        // Enable infinite loop
-        loop: true
-    });
-</script>
-
-
+@endif
 <div class="row">
     <div class="col s12 m12 l12">
         @foreach ($show->genres as $genre)
-        <div class="chip">
+        <a href="{{$layout['lang_prefix']}}/genres/{{ $genre->translation()->slug }}" class="chip">
             {{ $genre->translation()->title }}
-        </div>
+        </a>
         @endforeach
         @if( $show->network() !== null)
-        <div class="chip">
+        <a href="{{$layout['lang_prefix']}}/networks/{{ $show->network()->slug }}" class="chip">
             {{ $show->network()->translation()->value }}
             <i class="chip-icon material-icons">tv</i>
-        </div>
+        </a>
         @endif
         <div class="chip">
             {{ $show->runtime }} min
@@ -62,7 +33,6 @@
         </div>
         <div class="chip">
             {{ $show->first_aired }}
-            <i class="chip-icon material-icons">cake</i>
         </div>
     </div>
 </div>
@@ -90,24 +60,26 @@
     @endfor
 </ul>
 
-
-
-
+@if(count($show->actors()) > 0)
 <h3>Herci</h3>
-<ul class="collection">
+<div class="row truncate">
     @foreach ($show->actors() as $actor)
-    <li class="collection-item avatar" itemprop="actor" itemscope itemtype="http://schema.org/Person">
-        @if($actor->thumb() !== null)
-        <img src="{{$actor->thumb()->getSrc(50, 'thumb')}}" alt="" class="to-quare circle">
-        @endif
-        <span class="title" itemprop="name">{{ $actor->name }}</span>
-        <span class="truncate">{{ $actor->role }}</span>
-        <a href="{{$layout['lang_prefix']}}{{$actor->url()}}" class="secondary-content"><i class="material-icons">keyboard_arrow_right</i></a>
-    </li>
+    <a href="{{ $actor->url($layout['lang'])}}" class="actor col s4 m2 l2">
+        <div class="card actor">
+            <div class="card-image">
+                @if($actor->thumb() !== null)
+                <img src="{{ $actor->thumb()->src() }}"  alt="{{$actor->name}} ">
+                @endif
+            </div>
+            <div class="card-content">
+                <span class="card-title truncate">{{$actor->role}}&nbsp;</span>
+                <span class="card-title truncate">{{$actor->name}}&nbsp;</span> 
+            </div>
+        </div>
+    </a>
     @endforeach
-</ul>
-
-
+</div>
+@endif
 @endsection
 
 

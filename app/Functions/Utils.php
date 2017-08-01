@@ -49,11 +49,11 @@ class Utils {
 
         $actorId = \App\Actor::updateOrCreate(
                         ['thetvdb_id' => $actor['thetvdb_id']], [
-                    'thetvdb_id' => $actor['thetvdb_id'],
-                    'name' => $actor['name'],
-                    'slug' => Utils::slug($actor['name']),
-                    'role' => $actor['role'],
-                    'sort' => $actor['sort']
+                            'thetvdb_id' => $actor['thetvdb_id'],
+                            'name' => $actor['name'],
+                            'slug' => $actor['slug'],
+                            'role' => $actor['role'],
+                            'sort' => $actor['sort']
                         ]
                 )->id;
 

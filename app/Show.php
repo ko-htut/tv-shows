@@ -143,7 +143,7 @@ class Show extends Authenticatable {
         return $posters;
     }
 
-    public function actors($limit = 10) {
+    public function actors($limit = 6) {
         //return $this->morphToMany('App\Actor', 'model', 'actors_to_models');
         $actors = Actor::join('actors_to_models as pivot', 'pivot.actor_id', '=', 'actors.id')
                 ->where('model_id', '=', $this->id)

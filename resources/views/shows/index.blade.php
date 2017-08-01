@@ -4,7 +4,7 @@
 @section('page_title', 'Seriály' )
 @section('content')
 <!-- index -->
-<form class="ajax" id="filter" action="GET"></form>
+<form class="ajax" id="filter" action="GET">
      @include('shows.filter')
     <div class="row">
         @include('shows.ajax.items')

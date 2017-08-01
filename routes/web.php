@@ -20,6 +20,10 @@ Route::get('thetvdbshows', 'ShowsController@thetvdbshows');
 
 Route::get('import/{thetvdbId?}', 'ShowsController@import', function ($thetvdbId) {
 });
+Route::get('import2/{thetvdbId?}', 'ShowsController@importNew', function ($thetvdbId) {
+    //Not working yet.
+});
+
 
 Route::get('api', 'ShowsController@api');
 Route::get('images', 'ShowsController@images');
@@ -67,7 +71,7 @@ Route::get('shows/{slug}', 'ShowsController@detail', function ($slug) {
     
 });
 
-Route::get('shows/{slug}/episodes/{slug}', 'EpisodesController@detail', function ($slugShow, $slugEpisode) {
+Route::get('shows/{slugShow}/episodes/{slugEpisode}', 'EpisodesController@detail', function ($slugShow, $slugEpisode) {
     
 });
 

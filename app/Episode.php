@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use App\Show;
 class Episode extends Authenticatable {
 
     use Notifiable;
@@ -34,11 +34,11 @@ class Episode extends Authenticatable {
     }
 
     public function getSeasonNumberAttribute() {
-        return str_pad($this->attributes['season_number'], 2, "0", STR_PAD_LEFT);
+        return str_pad($this->attributes['season_number'], 2, '0', STR_PAD_LEFT);
     }
 
     public function getEpisodeNumberAttribute() {
-        return str_pad($this->attributes['episode_number'], 2, "0", STR_PAD_LEFT);
+        return str_pad($this->attributes['episode_number'], 2, '0', STR_PAD_LEFT);
     }
 
     public function translation($lang = null) {
@@ -58,8 +58,27 @@ class Episode extends Authenticatable {
         return $translation;
     }
 
-    public function thumb() {//TODO::MORPH BY
-        return $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Episode')->first();
+    public function thumb() {
+       $thumb =  $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Episode')->where('type', '=', 'thumb')->first();
+       if(){
+           return $thumb;
+       }
+       return null;
+    }
+
+    public function url($lang = null) {
+        $show = Show::find($this->show_id);
+        $lang = isset($lang) ? $lang : DEF_LANG;
+        $prefix = $show->url($lang) . '/episodes/';
+        $slug = null;
+        if ($this->translation($lang) !== null) {
+            $slug = $this->translation($lang)->slug;
+        }
+        if (!empty($slug)) {
+            return $prefix . $slug;
+        } else {
+            return $prefix . $this->id;
+        }
     }
 
     public function views($periond = null) {
