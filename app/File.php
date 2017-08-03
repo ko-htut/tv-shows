@@ -57,6 +57,10 @@ class File extends Authenticatable {
     }
 
     public function getSrc($width, $type = 'normal') {
+        
+        
+        //return $this->src();//Temp. Fix 
+        
         if ($type == 'normal') {
             $src = $this->resizeTo($width);
         } else if ($type == 'thumb') {
@@ -78,7 +82,7 @@ class File extends Authenticatable {
             return $remote_full_patch;
         }
 
-        $img = Image::make(file_get_contents($this->src()));
+        $img = Image::make(Utils::url_get_contents($this->src()));
         //$img->resize($width);
         $img->resize($width, null, function ($constraint) {
             $constraint->aspectRatio();
@@ -100,7 +104,7 @@ class File extends Authenticatable {
             //return $remote_full_patch;
         }
 
-        $img = Image::make(file_get_contents($this->src()));
+        $img = Image::make(Utils::url_get_contents($this->src()));
         //$img->resize($width);
         $img->resize($width, null, function ($constraint) {
             $constraint->aspectRatio();

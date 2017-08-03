@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Actor;
+use DB;
 
 class Show extends Authenticatable {
 
@@ -16,7 +17,7 @@ class Show extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'thetvdb_id', 'imdb_id', 'first_aired', 'ended', 'air_day', 'air_time', 'rating', 'rating_count', 'runtime', 'last_updated', 'active'
+        'thetvdb_id', 'imdb_id', 'first_aired', 'last_aired', 'ended', 'air_day', 'air_time', 'rating', 'rating_count', 'runtime', 'last_updated', 'active'
     ];
 
     /**
@@ -35,9 +36,11 @@ class Show extends Authenticatable {
     }
 
     public function translation($lang = null) {
+
         $lang = isset($lang) ? $lang : DEF_TRANSLATION;
         $translation = $this->hasMany('App\ShowTranslation', 'show_id', 'id')->where('lang', '=', $lang)->first();
-        if (isset($translation) && !$translation->title) {
+
+        if ((isset($translation) && !$translation->title) || $translation == null) {
             $translations = $this->hasMany('App\ShowTranslation', 'show_id', 'id')->get();
             foreach ($translations as $tr) {
                 if (!$tr->title) {
@@ -172,6 +175,10 @@ class Show extends Authenticatable {
         return $this->hasMany('App\Episode')->max('season_number');
     }
 
+    public function firstSeason() {
+        return $this->hasMany('App\Episode')->where('season_number', '>', 0)->min('season_number');
+    }
+
     public function genres() {
         return $this->morphToMany('App\Term', 'model', 'terms_to_models', null, null);
     }
@@ -193,6 +200,18 @@ class Show extends Authenticatable {
 
     public function getFirstAiredAttribute() {
         return date('Y', strtotime($this->attributes['first_aired']));
+    }
+
+    public function getLastAiredAttribute() {
+        if ($this->attributes['ended'] == true) {
+            $lastEpisodeAired = DB::table('episodes')->where('show_id', $this->id)->max('first_aired');
+            return date('Y', strtotime($lastEpisodeAired));
+        }
+        return '';
+    }
+
+    public function getTypeAttribute() {
+        return get_class($this);
     }
 
     public function views($periond = null) {

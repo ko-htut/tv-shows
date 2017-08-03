@@ -24,18 +24,76 @@ class EpisodesController extends LayoutController {
     public function detail($slugShow, $slugEpisode) {
 
         $lang = DEF_LANG;
+        if (!is_numeric($slugShow)) {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('slug', '=', $slugShow)
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
 
-        $episode = Episode::join('episodes_translations as translation', 'translation.episode_id', '=', 'episodes.id')
-                ->where('translation.slug', '=', $slugEpisode)
-                ->where('translation.lang', '=', $lang)
-                ->select('episodes.*')// just to avoid fetching anything from joined table
-                ->first();
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('slug', '=', $slugShow)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
+        } else {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('shows.id', '=', $slugShow)
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
 
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('shows.id', '=', $slugShow)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
+        }
+
+        preg_match_all('!\d+!', $slugEpisode, $numbers);
+        $seasonNumber = isset($numbers[0][0]) ? intval($numbers[0][0]) : 0;
+        $episodeNumber = isset($numbers[0][1]) ? intval($numbers[0][1]) : 0;
+        $episode = Episode::where('show_id', '=', $show->id)->where('season_number', '=', $seasonNumber)->where('episode_number', '=', $episodeNumber)->first();
         return view('episodes.detail', compact(['show', 'episode']));
     }
 
     public function detailTranslate($lang, $slugShow, $slugEpisode) {
-        
+
+        if (!is_numeric($slugShow)) {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('slug', '=', $slugShow)
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
+
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('slug', '=', $slugShow)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
+        } else {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('shows.id', '=', $slugShow)
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
+
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('shows.id', '=', $slugShow)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
+        }
+
+        preg_match_all('!\d+!', $slugEpisode, $numbers);
+        $seasonNumber = isset($numbers[0][0]) ? intval($numbers[0][0]) : 0;
+        $episodeNumber = isset($numbers[0][1]) ? intval($numbers[0][1]) : 0;
+        $episode = Episode::where('show_id', '=', $show->id)->where('season_number', '=', $seasonNumber)->where('episode_number', '=', $episodeNumber)->first();
+        return view('episodes.detail', compact(['show', 'episode']));
     }
 
 }

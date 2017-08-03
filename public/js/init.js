@@ -9,9 +9,10 @@
         // Initialize collapsible (uncomment the line below if you use the dropdown variation)
         $('.collapsible').collapsible();
 
+        $('textarea#comment').characterCounter();
         //Paralax
         $('.parallax').parallax();
-        
+
         if ($("form#filter").length) {
             //$('form#filter select[name=genres]').material_select();
             $('form#filter select#genres').material_select();

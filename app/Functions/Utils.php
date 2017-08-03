@@ -20,7 +20,9 @@ use Cocur\Slugify\Slugify;
  * @return string $address vraceny retezec obsahujici friendly url
  */
 class Utils {
+   
 
+   
     public static function isAjax() {
         return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ? true : false;
     }
@@ -49,11 +51,11 @@ class Utils {
 
         $actorId = \App\Actor::updateOrCreate(
                         ['thetvdb_id' => $actor['thetvdb_id']], [
-                            'thetvdb_id' => $actor['thetvdb_id'],
-                            'name' => $actor['name'],
-                            'slug' => $actor['slug'],
-                            'role' => $actor['role'],
-                            'sort' => $actor['sort']
+                    'thetvdb_id' => $actor['thetvdb_id'],
+                    'name' => $actor['name'],
+                    'slug' => $actor['slug'],
+                    'role' => $actor['role'],
+                    'sort' => $actor['sort']
                         ]
                 )->id;
 
@@ -143,7 +145,7 @@ class Utils {
 
     function compareFiles($file_a, $file_b) {
         if (filesize($file_a) == filesize($file_b)) {
-            
+
             $fp_a = fopen($file_a, 'rb');
             $fp_b = fopen($file_b, 'rb');
 

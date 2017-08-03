@@ -41,8 +41,6 @@ class ShowsController extends LayoutController {
             ],
         ];
 
-
-
         $limit = 2 * 3 * 5;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $next_page = $page + 1;
@@ -145,6 +143,7 @@ class ShowsController extends LayoutController {
             }
         }
 
+
         if (isset($_GET['update']) && $_GET['update'] == 'true') {
             $c = new ShowsController;
             $c->updateShow($show->thetvdb_id);
@@ -169,23 +168,42 @@ class ShowsController extends LayoutController {
             $seasonNum = $_GET['season'];
         }
 
+
         return view('shows.detail', compact(['show', 'lang', 'season', 'seasonNum']));
     }
 
     //TODO COPY
     public function detail($slug) {
-        $lang = DEF_LANG;
-        $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                ->where('slug', '=', $slug)
-                ->where('lang', '=', $lang)
-                ->select('shows.*')// just to avoid fetching anything from joined table
-                ->first();
 
-        if (!$show) {
+
+
+        $lang = DEF_LANG;
+        if (!is_numeric($slug)) {
             $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
                     ->where('slug', '=', $slug)
-                    ->select('shows.*')
-                    ->firstOrFail();
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
+
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('slug', '=', $slug)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
+        } else {
+            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                    ->where('shows.id', '=', $slug)
+                    ->where('lang', '=', $lang)
+                    ->select('shows.*')// just to avoid fetching anything from joined table
+                    ->first();
+
+            if (!$show) {
+                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
+                        ->where('shows.id', '=', $slug)
+                        ->select('shows.*')
+                        ->firstOrFail();
+            }
         }
 
         if (isset($_GET['update']) && $_GET['update'] == 'true') {
@@ -196,9 +214,6 @@ class ShowsController extends LayoutController {
         $season = null;
         $seasonNum = null;
         if (Utils::isAjax() && isset($_GET['season'])) {
-            header("Cache-Control: no-cache, no-store, must-revalidate");
-            header("Pragma: no-cache");
-            header("Expires: 0");
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");
@@ -589,7 +604,12 @@ class ShowsController extends LayoutController {
                 //dd($actorsData);
                 //images
                 $client->setLanguage('en');
-                $posters = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'poster'])->getData()->all();
+                $posters = [];
+                try {
+                    $posters = $client->series()->getImagesWithQuery($theTvDbId, ['keyType' => 'poster'])->getData()->all();
+                } catch (\Exception $e) {
+                    
+                }
                 if (!empty($posters)) {
                     foreach ($posters as $poster) {
                         $arr = [
@@ -874,31 +894,25 @@ class ShowsController extends LayoutController {
             ],
             'options' => [
                 'network' => []
-            ], 
+            ],
             'actors' => [
-                
             ],
             'genres' => [
-                
             ],
             'translations' => [
                 'cs' => [],
                 'en' => [],
             ],
-            
             'episodes' => [
                 'data' => [
-                    
                 ],
                 'translations' => [
                     'en' => [
-                        
                     ]
                 ],
             ],
-            
         ];
-        
+
         foreach ($shows as $show) {
             $thetvdbId = $show->thetvdb_id;
             echo $show->title . ' ' . $show->thetvdb_id . '<br>';
@@ -906,7 +920,7 @@ class ShowsController extends LayoutController {
             foreach ($langs as $lang) {
                 $client->setLanguage($lang);
                 $showData = $client->series()->get($thetvdbId);
-                
+
                 dump($showData);
                 $data = [
                     'thetvdb_id' => $showData->values['id'],
@@ -930,9 +944,9 @@ class ShowsController extends LayoutController {
                     'slug' => Utils::slug($showData->values['seriesName']),
                     'content' => $showData->values['overview']
                 ];
-                
+
                 dump($translation);
-                
+
                 //$translation = \App\ShowTranslation::firstOrCreate(array_filter($translation));
 
                 $genres = $showData->values['genre'];
@@ -962,7 +976,7 @@ class ShowsController extends LayoutController {
                         //Utils::insertActor($a, $showId, 'App\Show');
                     }
                 }
-                
+
                 dump($actorsData);
 
                 $client->setLanguage('en');
@@ -1012,7 +1026,7 @@ class ShowsController extends LayoutController {
                 $episodes = $client->series()->getEpisodes($thetvdbId);
                 $lastPage = $episodes->values['links']->values['last'];
                 dd($episodes);
-                
+
                 //Episdoes
                 for ($pg = 1; $pg <= $lastPage; $pg++) {
                     $episodes = $client->series()->getEpisodes($thetvdbId, $pg)->getData()->all();

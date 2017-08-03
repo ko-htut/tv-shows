@@ -35,7 +35,13 @@ class EpisodeTranslation extends Authenticatable {
     public function episode() {
         return $this->belogsTo('App\Episode');
     }
-    
-   
+
+    public function getMetaDescriptionAttribute($value) {
+        return !$value ? mb_substr($this->content, 0, 160) : $value;
+    }
+
+    public function getMetaTitleAttribute($value) {
+        return !$value ? mb_substr($this->title, 0, 60) : $value;
+    }
 
 }

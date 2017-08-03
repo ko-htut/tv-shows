@@ -4,7 +4,7 @@
             <li>
                 <a href="#!" class="">
                     <i class="material-icons button-collapse" data-activates="slide-out">menu</i>    
-                    <h1 class="page-title">@yield('page_title', 'Televizní seriály')</h1>
+                    <h1 class="brand-logo">@yield('page_title', 'Televizní seriály')</h1>
                 </a>
             </li>
         </ul>
@@ -12,10 +12,15 @@
         </ul>
         <ul id="slide-out" class="side-nav">
             <li><div class="userView grey darken-4">
+                    @if(Auth::check())
                     <a href="#"><img class="circle" src="http://placehold.it/70/ffd600/?text=THUMB"></a>
-                    <a href="#"><span class="white-text name truncate">Username</span></a>
-                    <a href="#"><span class="white-text email truncate">user@email.com</span></a>
-                </div></li>
+                    <a href="#"><span class="white-text name truncate">@if(Auth::user() !== null){{Auth::user()->username}}@endif</span></a>
+                    <a href="#"><span class="white-text email truncate">@if(Auth::user() !== null){{Auth::user()->email}}@endif</span></a>
+                    @else
+                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><span class="white-text">Login</span></a>
+                    @endif
+                </div>
+            </li>
             <li><a href="{{$layout['lang_prefix']}}/"><i class="material-icons smaller">explore</i>Seriály</a></li>
             <li><a href="{{$layout['lang_prefix']}}/calendar"><i class="material-icons smaller">today</i>Kalendář</a></li>
             @if($layout['genres'] !== null)
@@ -78,6 +83,12 @@
                     </li>
                 </ul>
             </li>
+            @if(Auth::check())
+            <li>
+            <a class="waves-effect" href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();"><i class="material-icons smaller">lock</i>Odhlásit</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">{{ csrf_field() }}</form>
+            </li>
+            @endif            
         </ul>
     </div>
 </nav>

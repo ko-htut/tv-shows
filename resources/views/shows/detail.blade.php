@@ -32,7 +32,7 @@
             <i class="chip-icon material-icons">timer</i>
         </div>
         <div class="chip">
-            {{ $show->first_aired }}
+           {{ $show->first_aired }} @if($show->last_aired)- {{ $show->last_aired }}@endif
         </div>
     </div>
 </div>
@@ -44,7 +44,7 @@
 
 <h3>Série</h3>
 <ul class="collapsible" data-collapsible="accordion">
-    @for ($i = $show->lastSeason(); $i > 0; $i--)
+    @for ($i = $show->lastSeason(); $i >= $show->firstSeason(); $i--)
     <li itemprop="containsSeason" itemscope itemtype="http://schema.org/TVSeason" id="season-{{ $i }}">
         <div class="ajax collapsible-header @if($seasonNum == $i) active @endif " href="?season={{ $i }}"><span class="new badge" data-badge-caption="episodes" itemprop="numberOfEpisodes">{{ $show->seasonEpisodesCount($i) }}</span>
             <a href="?season={{ $i }}" class="ajax collection-item"><span itemprop="name">Season {{ $i }}</span></a>
@@ -80,6 +80,8 @@
     @endforeach
 </div>
 @endif
+<h3>Komentáře</h3>
+@include('components.comments.form', ['model' => $show])
 @endsection
 
 

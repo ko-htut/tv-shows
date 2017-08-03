@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration {
             $table->text('about')->nullable();
             $table->string('facebook_id', 100)->nullable();
             $table->boolean('active')->default(true);
+            $table->string('remember_token', 255)->nullable();
             $table->timestamps();
         });
 

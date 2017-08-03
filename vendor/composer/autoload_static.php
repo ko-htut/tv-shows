@@ -275,6 +275,13 @@ class ComposerStaticInit32e7a1ba8801b66ced2b662d9cff5c03
     );
 
     public static $prefixesPsr0 = array (
+        'R' => 
+        array (
+            'Roumen\\Sitemap' => 
+            array (
+                0 => __DIR__ . '/..' . '/roumen/sitemap/src',
+            ),
+        ),
         'P' => 
         array (
             'Prophecy\\' => 
@@ -387,6 +394,7 @@ class ComposerStaticInit32e7a1ba8801b66ced2b662d9cff5c03
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\File' => __DIR__ . '/../..' . '/app/File.php',
         'App\\Functions\\Utils' => __DIR__ . '/../..' . '/app/Functions/Utils.php',
+        'App\\Http\\Controllers\\ActorsController' => __DIR__ . '/../..' . '/app/Http/Controllers/ActorsController.php',
         'App\\Http\\Controllers\\AndroidApiController' => __DIR__ . '/../..' . '/app/Http/Controllers/AndroidApiController.php',
         'App\\Http\\Controllers\\AttributesController' => __DIR__ . '/../..' . '/app/Http/Controllers/AttributesController.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
@@ -394,11 +402,14 @@ class ComposerStaticInit32e7a1ba8801b66ced2b662d9cff5c03
         'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
         'App\\Http\\Controllers\\Auth\\ResetPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ResetPasswordController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\CronController' => __DIR__ . '/../..' . '/app/Http/Controllers/CronController.php',
         'App\\Http\\Controllers\\EpisodesController' => __DIR__ . '/../..' . '/app/Http/Controllers/EpisodesController.php',
         'App\\Http\\Controllers\\FilesController' => __DIR__ . '/../..' . '/app/Http/Controllers/FilesController.php',
         'App\\Http\\Controllers\\FoldersController' => __DIR__ . '/../..' . '/app/Http/Controllers/FoldersController.php',
+        'App\\Http\\Controllers\\HomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/HomeController.php',
         'App\\Http\\Controllers\\LanguagesController' => __DIR__ . '/../..' . '/app/Http/Controllers/LanguagesController.php',
         'App\\Http\\Controllers\\LayoutController' => __DIR__ . '/../..' . '/app/Http/Controllers/LayoutController.php',
+        'App\\Http\\Controllers\\NetworksController' => __DIR__ . '/../..' . '/app/Http/Controllers/NetworksController.php',
         'App\\Http\\Controllers\\PagesController' => __DIR__ . '/../..' . '/app/Http/Controllers/PagesController.php',
         'App\\Http\\Controllers\\SelectsController' => __DIR__ . '/../..' . '/app/Http/Controllers/SelectsController.php',
         'App\\Http\\Controllers\\ShowsController' => __DIR__ . '/../..' . '/app/Http/Controllers/ShowsController.php',
@@ -426,6 +437,7 @@ class ComposerStaticInit32e7a1ba8801b66ced2b662d9cff5c03
         'App\\TermPivot' => __DIR__ . '/../..' . '/app/TermPivot.php',
         'App\\TermTranslation' => __DIR__ . '/../..' . '/app/TermTranslation.php',
         'App\\TermType' => __DIR__ . '/../..' . '/app/TermType.php',
+        'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'Carbon\\Carbon' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Carbon.php',
         'Carbon\\CarbonInterval' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/CarbonInterval.php',
         'Carbon\\Exceptions\\InvalidDateException' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Exceptions/InvalidDateException.php',
@@ -3012,6 +3024,9 @@ class ComposerStaticInit32e7a1ba8801b66ced2b662d9cff5c03
         'Ramsey\\Uuid\\UuidFactory' => __DIR__ . '/..' . '/ramsey/uuid/src/UuidFactory.php',
         'Ramsey\\Uuid\\UuidFactoryInterface' => __DIR__ . '/..' . '/ramsey/uuid/src/UuidFactoryInterface.php',
         'Ramsey\\Uuid\\UuidInterface' => __DIR__ . '/..' . '/ramsey/uuid/src/UuidInterface.php',
+        'Roumen\\Sitemap\\Model' => __DIR__ . '/..' . '/roumen/sitemap/src/Roumen/Sitemap/Model.php',
+        'Roumen\\Sitemap\\Sitemap' => __DIR__ . '/..' . '/roumen/sitemap/src/Roumen/Sitemap/Sitemap.php',
+        'Roumen\\Sitemap\\SitemapServiceProvider' => __DIR__ . '/..' . '/roumen/sitemap/src/Roumen/Sitemap/SitemapServiceProvider.php',
         'SebastianBergmann\\CodeCoverage\\CodeCoverage' => __DIR__ . '/..' . '/phpunit/php-code-coverage/src/CodeCoverage.php',
         'SebastianBergmann\\CodeCoverage\\CoveredCodeNotExecutedException' => __DIR__ . '/..' . '/phpunit/php-code-coverage/src/Exception/CoveredCodeNotExecutedException.php',
         'SebastianBergmann\\CodeCoverage\\Driver\\Driver' => __DIR__ . '/..' . '/phpunit/php-code-coverage/src/Driver/Driver.php',

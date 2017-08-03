@@ -11,6 +11,7 @@
             <div class="card-image">
                 <div class="focus">
                     @if($show->fanart())
+                    <!-- $show->fanart()->getSrc(374) -->
                     <img src="{{ $show->fanart()->getSrc(374) }}" class="focus" 
                          @if($show->translation($layout['lang']) !== null)
                          alt="{{$show->translation($layout['lang'])->title}}"

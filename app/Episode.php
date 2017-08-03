@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Show;
+
 class Episode extends Authenticatable {
 
     use Notifiable;
@@ -44,7 +45,7 @@ class Episode extends Authenticatable {
     public function translation($lang = null) {
         $lang = isset($lang) ? $lang : DEF_TRANSLATION;
         $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', '=', $lang)->first();
-        if (!$translation->title) {
+        if (!isset($translation) || !$translation->title) {
             $translations = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->get();
             foreach ($translations as $tr) {
                 if (!$tr->title) {
@@ -59,26 +60,21 @@ class Episode extends Authenticatable {
     }
 
     public function thumb() {
-       $thumb =  $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Episode')->where('type', '=', 'thumb')->first();
-       if(){
-           return $thumb;
-       }
-       return null;
+        $thumb = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Episode')->where('type', '=', 'thumb')->first();
+        return $thumb;
     }
 
     public function url($lang = null) {
         $show = Show::find($this->show_id);
         $lang = isset($lang) ? $lang : DEF_LANG;
-        $prefix = $show->url($lang) . '/episodes/';
-        $slug = null;
-        if ($this->translation($lang) !== null) {
-            $slug = $this->translation($lang)->slug;
-        }
-        if (!empty($slug)) {
-            return $prefix . $slug;
-        } else {
-            return $prefix . $this->id;
-        }
+        $prefix = $show->url($lang) . '/';
+        
+        
+        $slug = 's' . str_pad($this->season_number, 2, '0', STR_PAD_LEFT)  . 'e' . str_pad($this->episode_number, 2, '0', STR_PAD_LEFT) ;
+        
+       
+        return $prefix . $slug;
+        
     }
 
     public function views($periond = null) {

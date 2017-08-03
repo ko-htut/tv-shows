@@ -6,7 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Cocur\Slugify\Slugify;
 use DB;
-
+use App\File;
 class Actor extends Authenticatable {
 
     use Notifiable;
@@ -62,7 +62,9 @@ class Actor extends Authenticatable {
                 return $thumb;
             }
         }
-        return null;
+        $thumb = new File;
+        $thumb->external_patch = '/public/img/placeholders/actor.jpg';
+        return $thumb;
     }
 
     public function thumbs() {
