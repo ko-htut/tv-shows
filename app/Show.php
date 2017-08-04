@@ -110,8 +110,6 @@ class Show extends Authenticatable {
 
     public function poster() {
         $posters = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'poster')->orderBy('sort', 'desc')->get(); //
-        //return $fanarts[0];
-        //dd($fanarts);
         foreach ($posters as $poster) {
 
             $ch = curl_init($poster->external_patch);

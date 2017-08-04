@@ -4,8 +4,6 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Cocur\Slugify\Slugify;
-use DB;
 
 class User extends Authenticatable {
 
@@ -34,6 +32,18 @@ class User extends Authenticatable {
         } else {
             return false;
         }
+    }
+    
+     public function getTypeAttribute() {
+        return get_class($this);
+    }
+    
+    public function avatar(){
+        return $this->morphOne('App\File', 'model');
+    }
+    
+    public function avatarPlaceholder(){
+        return '/public/img/placeholders/user.png';
     }
 
 }

@@ -314,3 +314,8 @@ input[type=text]:focus:not([readonly])+label,input[type=email]:focus:not([readon
 .delete-icon i:hover{
     color: #f44336!important;
 }
+
+.file-field{
+    padding: 0px 10px;
+    overflow: hidden;
+}

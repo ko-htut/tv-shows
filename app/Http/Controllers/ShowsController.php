@@ -23,7 +23,7 @@ class ShowsController extends LayoutController {
 
     public function index($lang = DEF_LANG) {
 
-
+        
         //Find folfder
         $filter = [
             'genres' => \App\Term::all(),
@@ -152,9 +152,6 @@ class ShowsController extends LayoutController {
         $season = null;
         $seasonNum = null;
         if (Utils::isAjax() && isset($_GET['season'])) {
-            header("Cache-Control: no-cache, no-store, must-revalidate");
-            header("Pragma: no-cache");
-            header("Expires: 0");
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");

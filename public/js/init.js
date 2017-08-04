@@ -10,6 +10,21 @@
         $('.collapsible').collapsible();
 
         $('textarea#comment').characterCounter();
+        $('textarea#about').characterCounter();
+
+        $('select#gender').material_select();
+
+        $('.birthdaypicker').pickadate({
+            selectMonths: true, // Creates a dropdown to control month
+            selectYears: 90, // Creates a dropdown of 15 years to control year,
+            today: 'Today',
+            clear: 'Clear',
+            close: 'Ok',
+            closeOnSelect: true, // Close upon selecting a date,
+            format: 'yyyy-mm-dd', //submited format
+            max: true, //Only past dates
+        });
+
         //Paralax
         $('.parallax').parallax();
 

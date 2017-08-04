@@ -57,8 +57,7 @@ class File extends Authenticatable {
     }
 
     public function getSrc($width, $type = 'normal') {
-        
-        
+
         //return $this->src();//Temp. Fix 
         
         if ($type == 'normal') {
@@ -70,7 +69,7 @@ class File extends Authenticatable {
         return $src;
     }
 
-    public function resizeTo($width, $height = null, $quality = 90) {
+    public function resizeTo($width, $quality = 90) {
 
         $ext = $this->ext();
         $patch = 'public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
@@ -92,7 +91,7 @@ class File extends Authenticatable {
         return $remote_full_patch;
     }
 
-    public function resizeToThumb($width, $height = null, $quality = 90) {
+    public function resizeToThumb($width, $patch, $quality = 90) {
 
         $ext = $this->ext();
         $patch = 'public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
@@ -128,6 +127,11 @@ class File extends Authenticatable {
             }
         }
         return strtok($ext, '?');
+    }
+    
+    //TESTing
+    public function model(){
+        return $this->morphTo();
     }
 
 }
