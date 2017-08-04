@@ -147,7 +147,6 @@ class Show extends Authenticatable {
     }
 
     public function actors($limit = 6) {
-        //return $this->morphToMany('App\Actor', 'model', 'actors_to_models');
         $actors = Actor::join('actors_to_models as pivot', 'pivot.actor_id', '=', 'actors.id')
                 ->where('model_id', '=', $this->id)
                 ->where('model_type', '=', 'App\Show')
@@ -210,16 +209,17 @@ class Show extends Authenticatable {
         return '';
     }
 
+  
+    public function views($periond = null) {
+        
+    }
+    
     public function getTypeAttribute() {
         return get_class($this);
     }
 
-    public function views($periond = null) {
-        
-    }
-
     public function comments() {
-        
+        return $this->morphMany('App\Comment', 'model');
     }
 
     public function votes() {

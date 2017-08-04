@@ -233,7 +233,7 @@ h3 {
 }
 
 .comment-submit{
-     margin: 24px 0;
+    margin: 24px 0;
 }
 
 /* label color */
@@ -276,4 +276,41 @@ input[type=text]:focus:not([readonly]), input[type=email]:focus:not([readonly]),
 
 input[type=text]:focus:not([readonly])+label,input[type=email]:focus:not([readonly])+label,input[type=password]:focus:not([readonly])+label, textarea.materialize-textarea:focus:not([readonly])+label{
     color:#1565c0;
+}
+
+.comments span.username{
+    font-size: 14px;
+    font-weight: bold;
+}
+.comments span.date{
+    color: #ccc;
+    font-size: 13px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.comments p.content{
+    font-size: 14px;
+    color: #555
+}
+
+
+
+.delete-icon {
+    background-color:transparent;
+    box-shadow:none;
+}
+.delete-icon:hover{
+    background-color:transparent!important;
+    box-shadow:none!important;
+}
+
+.delete-icon i{
+    color:#ccc;
+    font-size:17px;
+    
+}
+
+.delete-icon i:hover{
+    color: #f44336!important;
 }

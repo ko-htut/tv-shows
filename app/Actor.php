@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Cocur\Slugify\Slugify;
 use DB;
 use App\File;
+
 class Actor extends Authenticatable {
 
     use Notifiable;
@@ -79,8 +80,12 @@ class Actor extends Authenticatable {
         
     }
 
+    public function getTypeAttribute() {
+        return get_class($this);
+    }
+
     public function comments() {
-        
+        return $this->morphMany('App\Comment', 'model');
     }
 
     public function votes() {
@@ -90,7 +95,7 @@ class Actor extends Authenticatable {
     public function url($lang = null) {
         $lang = isset($lang) ? $lang : DEF_LANG;
         $slug = $this->slug;
-        $prefix = ($lang == DEF_LANG) ? '/actors/' : '/' .$lang . '/actors/';
+        $prefix = ($lang == DEF_LANG) ? '/actors/' : '/' . $lang . '/actors/';
         return $prefix . $slug;
     }
 

@@ -82,9 +82,13 @@ class Episode extends Authenticatable {
     }
 
     public function comments() {
-        
+        return $this->morphMany('App\Comment', 'model');
     }
 
+    public function getTypeAttribute() {
+        return get_class($this);
+    }
+    
     public function votes() {
         
     }

@@ -20,7 +20,9 @@
     <p itemprop="description">{{ $episode->translation($layout['lang'])->content }}</p>
 </div>
 @endif
-
+<h3>Komentáře</h3>
+@include('components.comments.form', ['model' => $episode])
+@include('components.comments.display', ['comments' => $episode->comments])
 @endsection
 
 

@@ -20,7 +20,7 @@ class CreateCommentsTable extends Migration {
             $table->increments('id');
             $table->integer('user_id')->unsigned()->nullable(); //FK
             $table->integer('parent_id')->unsigned()->nullable(); //FK
-            //$table->string('lang', 2)->nullable(); //FK
+            $table->string('lang', 2)->nullable(); //FK
             $table->string('title')->nullable();
             $table->text('content')->nullable();
             $table->morphs('model'); //model_id, model_type
@@ -31,7 +31,7 @@ class CreateCommentsTable extends Migration {
         Schema::table('comments', function($table) {
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('parent_id')->references('id')->on('comments');
-            //$table->foreign('lang')->references('code')->on('languages');
+            $table->foreign('lang')->references('code')->on('languages');
         });
     }
 

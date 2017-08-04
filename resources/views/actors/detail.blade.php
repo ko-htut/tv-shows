@@ -49,4 +49,8 @@
     @endforeach
 </div>
 
+<h3>Komentáře</h3>
+@include('components.comments.form', ['model' => $actor])
+@include('components.comments.display', ['comments' => $actor->comments])
+
 @endsection

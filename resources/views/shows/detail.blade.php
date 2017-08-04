@@ -32,7 +32,7 @@
             <i class="chip-icon material-icons">timer</i>
         </div>
         <div class="chip">
-           {{ $show->first_aired }} @if($show->last_aired)- {{ $show->last_aired }}@endif
+            {{ $show->first_aired }} @if($show->last_aired)- {{ $show->last_aired }}@endif
         </div>
     </div>
 </div>
@@ -82,6 +82,7 @@
 @endif
 <h3>Komentáře</h3>
 @include('components.comments.form', ['model' => $show])
+@include('components.comments.display', ['comments' => $show->comments])
 @endsection
 
 

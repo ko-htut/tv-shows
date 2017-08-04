@@ -17,7 +17,7 @@
                     <a href="#"><span class="white-text name truncate">@if(Auth::user() !== null){{Auth::user()->username}}@endif</span></a>
                     <a href="#"><span class="white-text email truncate">@if(Auth::user() !== null){{Auth::user()->email}}@endif</span></a>
                     @else
-                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><span class="white-text">Login</span></a>
+                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><span class="white-text">Přihlásit se</span></a>
                     @endif
                 </div>
             </li>
