@@ -20,6 +20,20 @@
     <p itemprop="description">{{ $episode->translation($layout['lang'])->content }}</p>
 </div>
 @endif
+
+@if(isset($episode->imdb_id) || isset($episode->thetvdb_id))
+    <h3>Více na</h3>
+    @if(isset($show->imdb_id))
+    <div class="col s12">
+        <a href="http://www.imdb.com/title/{{$episode->imdb_id}}/" target="_blank">Imdb.com</a>
+    </div>
+    @endif
+    @if(isset($show->thetvdb_id) && isset($show->thetvdb_id))
+    <div class="col s12">
+        <a href="http://thetvdb.com/?tab=episode&seriesid={{$show->thetvdb_id}}&id={{$episode->thetvdb_id}}" target="_blank" class="col s12">TheTvDb.com</a>
+    </div>
+    @endif
+@endif
 <h3>Komentáře</h3>
 @include('components.comments.form', ['model' => $episode])
 @include('components.comments.display', ['comments' => $episode->comments])

@@ -64,7 +64,7 @@ class Actor extends Authenticatable {
             }
         }
         $thumb = new File;
-        $thumb->external_patch = '/public/img/placeholders/actor.jpg';
+        $thumb->external_patch = '/storage/app/public/img/placeholders/actor.jpg';
         return $thumb;
     }
 

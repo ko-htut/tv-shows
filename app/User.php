@@ -43,7 +43,7 @@ class User extends Authenticatable {
     }
     
     public function avatarPlaceholder(){
-        return '/public/img/placeholders/user.png';
+        return '/storage/app/public/img/placeholders/user.png';
     }
 
 }

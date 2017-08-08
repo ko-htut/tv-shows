@@ -49,6 +49,11 @@
     @endforeach
 </div>
 
+<h3>Více na</h3>
+<div class="col s12">
+    <a href="http://www.imdb.com/find?q={{urlencode($actor->name)}}" target="_blank">Imdb.com</a>
+</div>
+
 <h3>Komentáře</h3>
 @include('components.comments.form', ['model' => $actor])
 @include('components.comments.display', ['comments' => $actor->comments])

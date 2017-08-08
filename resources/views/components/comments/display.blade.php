@@ -2,7 +2,7 @@
 <ul class="collection comments">
     @foreach ($comments as $comment)
     <li class="collection-item avatar">
-        <img src="/public/img/placeholders/man.png" alt="" class="circle">
+        <img class="circle" alt="" src="@if($comment->user->avatar !== null){{$comment->user->avatar->getSrc(64, 'thumb')}}@else{{$comment->user->avatarPlaceholder()}}@endif">
         <span class="username">{{ $comment->user->username }}</span><br/>
         <span class="date">{{ $comment->updated_at }}</span>
         <p class="content">

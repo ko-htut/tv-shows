@@ -12,6 +12,7 @@ use App\Functions\Utils;
 use View;
 use Image;
 use Illuminate\Support\Facades\Route;
+use Cocur\Slugify\Slugify;
 
 define('THETVDB_API_KEY', '5EA3012696C40059');
 
@@ -23,7 +24,7 @@ class ShowsController extends LayoutController {
 
     public function index($lang = DEF_LANG) {
 
-        
+
         //Find folfder
         $filter = [
             'genres' => \App\Term::all(),
@@ -166,13 +167,11 @@ class ShowsController extends LayoutController {
         }
 
 
-        return view('shows.detail', compact(['show', 'lang', 'season', 'seasonNum']));
+        return view('shows.detail', compact(['show', 'season', 'seasonNum']));
     }
 
     //TODO COPY
     public function detail($slug) {
-
-
 
         $lang = DEF_LANG;
         if (!is_numeric($slug)) {
@@ -203,6 +202,8 @@ class ShowsController extends LayoutController {
             }
         }
 
+
+
         if (isset($_GET['update']) && $_GET['update'] == 'true') {
             $c = new ShowsController;
             $c->updateShow($show->thetvdb_id);
@@ -224,7 +225,7 @@ class ShowsController extends LayoutController {
             $seasonNum = $_GET['season'];
         }
 
-        return view('shows.detail', compact(['show', 'lang', 'season', 'seasonNum']));
+        return view('shows.detail', compact(['show', 'season', 'seasonNum']));
     }
 
     public function thetvdbshows() {
@@ -254,9 +255,6 @@ class ShowsController extends LayoutController {
     public function import($thetvdbId = null) {
         $start = microtime(true);
         ini_set('max_execution_time', 60 * 60 * 10);
-        //$pg = 8;
-        //$lim = 60;
-        //dd($thetvdbId);
         $shows = null;
         if ($thetvdbId == null) {
             $showsInDb = DB::table('shows')->select('thetvdb_id')->get()->toArray();
@@ -288,24 +286,11 @@ class ShowsController extends LayoutController {
         $token = $client->authentication()->login(THETVDB_API_KEY);
         $client->setToken($token);
 
-        /* Inserting the langs
-          $langs = $client->languages()->all()->getData()->all();
-
-          foreach ($langs as $lang) {
-          $lng = [
-          'code' => $lang->values['abbreviation'],
-          'name' => $lang->values['name'],
-          'englishName' => $lang->values['englishName']
-          ];
-          Language::firstOrCreate($lng);
-          }
-
-         */
-
         $langs = [
             'en', 'cs', 'de', 'es', 'fr', 'pl', 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
         ];
 
+        $badLangs = ['ja', 'he', 'zh', 'ko'];
 
 
         foreach ($shows as $show) {
@@ -341,6 +326,7 @@ class ShowsController extends LayoutController {
                         'slug' => Utils::slug($showData->values['seriesName']),
                         'content' => $showData->values['overview']
                     ];
+
                     $translation = \App\ShowTranslation::firstOrCreate(array_filter($translation));
 
                     $genres = $showData->values['genre'];
@@ -439,7 +425,7 @@ class ShowsController extends LayoutController {
 
                             //Images
                             $thumb = 'http://thetvdb.com/banners/' . $e->values['filename'];
-                            if ($thumb) {
+                            if ($thumb && !empty($e->values['filename'])) {
                                 $arr = [
                                     'type' => 'thumb',
                                     'extension' => 'jpg',
@@ -454,7 +440,7 @@ class ShowsController extends LayoutController {
                                 'episode_id' => $episodeId,
                                 'lang' => $lang,
                                 'title' => $e->values['episodeName'],
-                                'slug' => Utils::slug($e->values['episodeName']),
+                                //'slug' => Utils::slug($e->values['episodeName']),
                                 'content' => $e->values['overview'],
                             ];
                             \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
@@ -472,6 +458,15 @@ class ShowsController extends LayoutController {
                         'slug' => Utils::slug($showData->values['seriesName']),
                         'content' => $showData->values['overview']
                     ];
+
+                    //
+                    if (in_array($lang, $badLangs)) {
+                        $enTitle = DB::table('shows_translations')->select('title')->where('show_id', $showId)->where('lang', 'en')->first()->title;
+                        if (!empty($enTitle)) {
+                            $translation['slug'] = Utils::slug($enTitle);
+                        }
+                    }
+
                     $translation = \App\ShowTranslation::firstOrCreate(array_filter($translation));
 
 
@@ -496,7 +491,7 @@ class ShowsController extends LayoutController {
                                 'episode_id' => $episodeId,
                                 'lang' => $lang,
                                 'title' => $episode->values['episodeName'],
-                                'slug' => Utils::slug($episode->values['episodeName']),
+                                //'slug' => Utils::slug($episode->values['episodeName']),
                                 'content' => $episode->values['overview'],
                             ];
                             \App\EpisodeTranslation::firstOrCreate(array_filter($episodeTranslation));
@@ -536,9 +531,6 @@ class ShowsController extends LayoutController {
                     //dd('do not update... ' . $showData->values['lastUpdated'] . ' !bigger than ' . $dbLastUpdated);
                 }
 
-
-
-
                 $data = [
                     'thetvdb_id' => $showData->values['id'],
                     'imdb_id' => $showData->values['imdbId'],
@@ -565,7 +557,6 @@ class ShowsController extends LayoutController {
                     'slug' => Utils::slug($showData->values['seriesName']),
                     'content' => $showData->values['overview']
                 ];
-
 
                 $translation = \App\ShowTranslation::updateOrCreate(
                                 ['show_id' => $showId,
@@ -669,8 +660,6 @@ class ShowsController extends LayoutController {
                             'last_updated' => $e->values['lastUpdated'],
                         ];
 
-
-
                         $episodeId = \App\Episode::updateOrCreate(
                                         ['show_id' => $showId,
                                     'thetvdb_id' => $e->values['id']], array_filter($episodeArr))->id;
@@ -694,7 +683,7 @@ class ShowsController extends LayoutController {
                             'episode_id' => $episodeId,
                             'lang' => $lang,
                             'title' => $e->values['episodeName'],
-                            'slug' => Utils::slug($e->values['episodeName']),
+                            //'slug' => Utils::slug($e->values['episodeName']),
                             'content' => $e->values['overview'],
                         ];
 
@@ -705,7 +694,7 @@ class ShowsController extends LayoutController {
                     }
                 }
             } else {
-
+                //Other languages
                 $client->setLanguage($lang);
                 $showData = $client->series()->get($theTvDbId);
 
@@ -718,6 +707,13 @@ class ShowsController extends LayoutController {
                     'slug' => Utils::slug($showData->values['seriesName']),
                     'content' => $showData->values['overview']
                 ];
+
+                if (in_array($lang, $badLangs)) {
+                    $enTitle = DB::table('shows_translations')->select('title')->where('show_id', $showId)->where('lang', 'en')->first()->title;
+                    if (!empty($enTitle)) {
+                        $translation['slug'] = Utils::slug($enTitle);
+                    }
+                }
 
 
                 $translation = \App\ShowTranslation::updateOrCreate(
@@ -757,7 +753,7 @@ class ShowsController extends LayoutController {
                             'episode_id' => $episodeId,
                             'lang' => $lang,
                             'title' => $episode->values['episodeName'],
-                            'slug' => Utils::slug($episode->values['episodeName']),
+                            //'slug' => Utils::slug($episode->values['episodeName']),
                             'content' => $episode->values['overview'],
                         ];
 
@@ -1070,6 +1066,39 @@ class ShowsController extends LayoutController {
         $end = microtime(true);
 
         dd('Elapsed time ' . date("H:i:s", ($end - $start)));
+    }
+
+    public function updateSlugs() {
+
+        $translations = \App\ShowTranslation::all();
+        $bad = ['ja', 'he', 'zh', 'ko']; //replace with en or something better en default...
+        $slugify = new Slugify();
+
+        foreach ($translations as $t) {
+
+            $slug = $slugify->slugify($t->title);
+
+            if (in_array($t->lang, $bad)) {
+                $enTitle = DB::table('shows_translations')->select('title')->where('show_id', $t->show_id)->where('lang', 'en')->first()->title;
+                if (!empty($enTitle)) {
+                    $slug = $slugify->slugify($enTitle);
+                }
+            }
+
+
+            if ($t->slug != $slug) {
+                echo "<span style='color:blue'>";
+            }
+            echo $t->lang . " old:" . $t->title . ' as ' . $t->slug . ' new:' . $slug;
+            if ($t->slug != $slug) {
+                echo "</span>";
+            }
+            echo "<br/>";
+
+            if ($t->slug != $slug) {
+                DB::table('shows_translations')->where('id', $t->id)->update(['slug' => $slug]);
+            }
+        }
     }
 
 }

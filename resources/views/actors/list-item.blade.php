@@ -11,6 +11,7 @@
         </div>
         <div class="card-content">
             <span class="card-title truncate">{{$actor->name}}&nbsp;</span>
+             <span class="card-title truncate">{{$actor->role}}&nbsp;</span>
         </div>
     </div>
 </div>

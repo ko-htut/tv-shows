@@ -1,9 +1,11 @@
 <div class="col s12 m6 l4">
     <div class="card">
         <div class="card-image">
+            @if($show->fanart() !== null)
             <div class="focus">
                 <img src="{{ $show->fanart()->getSrc(374) }}" class="focus" alt="{{$show->translation($layout['lang'])->title}} ">
             </div>
+            @endif
             <a href="{{ $show->url($layout['lang'])}}"
                class="btn-floating halfway-fab waves-effect waves-light red">
                 <i class="material-icons">add</i>

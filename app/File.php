@@ -72,7 +72,7 @@ class File extends Authenticatable {
     public function resizeTo($width, $quality = 90) {
 
         $ext = $this->ext();
-        $patch = 'public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
+        $patch = 'storage/app/public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
         $filename = $this->type . '-' . $this->model_id . '-' . $this->id . '-w' . $width . 'px' . '.' . $ext;
         $full_patch = $patch . $filename;
         $remote_full_patch = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $full_patch;
@@ -82,7 +82,7 @@ class File extends Authenticatable {
         }
 
         $img = Image::make(Utils::url_get_contents($this->src()));
-        //$img->resize($width);
+        
         $img->resize($width, null, function ($constraint) {
             $constraint->aspectRatio();
         });
@@ -91,20 +91,20 @@ class File extends Authenticatable {
         return $remote_full_patch;
     }
 
-    public function resizeToThumb($width, $patch, $quality = 90) {
+    public function resizeToThumb($width, $quality = 90) {
 
         $ext = $this->ext();
-        $patch = 'public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
+        $patch = 'storage/app/public/img/' . strtolower(str_replace("\\", '', str_replace('App', '', $this->model_type))) . 's/';
         $filename = $this->type . '-' . $this->model_id . '-' . $this->id . '-w' . $width . 'px' . '-thumb.' . $ext;
         $full_patch = $patch . $filename;
         $remote_full_patch = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $full_patch;
 
         if (Utils::remote_file_exists($remote_full_patch)) {
-            //return $remote_full_patch;
+            return $remote_full_patch;//TODO check...
         }
 
         $img = Image::make(Utils::url_get_contents($this->src()));
-        //$img->resize($width);
+        
         $img->resize($width, null, function ($constraint) {
             $constraint->aspectRatio();
         });

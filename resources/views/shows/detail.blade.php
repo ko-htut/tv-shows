@@ -14,6 +14,7 @@
     </div>
 </div>
 @endif
+
 <div class="row">
     <div class="col s12 m12 l12">
         @foreach ($show->genres as $genre)
@@ -41,13 +42,14 @@
     <p itemprop="description">{{ $show->translation($layout['lang'])->content }}</p>
 </div>
 
-
+@if($show->lastSeason() !== null && $show->firstSeason()!== null)
 <h3>Série</h3>
 <ul class="collapsible" data-collapsible="accordion">
     @for ($i = $show->lastSeason(); $i >= $show->firstSeason(); $i--)
+    @if($show->seasonEpisodesCount($i) > 0)
     <li itemprop="containsSeason" itemscope itemtype="http://schema.org/TVSeason" id="season-{{ $i }}">
-        <div class="ajax collapsible-header @if($seasonNum == $i) active @endif " href="?season={{ $i }}"><span class="new badge" data-badge-caption="episodes" itemprop="numberOfEpisodes">{{ $show->seasonEpisodesCount($i) }}</span>
-            <a href="?season={{ $i }}" class="ajax collection-item"><span itemprop="name">Season {{ $i }}</span></a>
+        <div class="ajax collapsible-header @if($seasonNum == $i) active @endif " href="?season={{ $i }}"><span class="new badge" data-badge-caption="epizod" itemprop="numberOfEpisodes">{{ $show->seasonEpisodesCount($i) }}</span>
+            <a href="?season={{ $i }}" class="ajax collection-item"><span itemprop="name">Série {{ $i }}</span></a>
         </div>
         <div class="collapsible-body">
             @if($seasonNum == $i)
@@ -57,14 +59,16 @@
             @endif
         </div>
     </li>
+    @endif
     @endfor
 </ul>
+@endif
 
 @if(count($show->actors()) > 0)
 <h3>Herci</h3>
 <div class="row truncate">
     @foreach ($show->actors() as $actor)
-    <a href="{{ $actor->url($layout['lang'])}}" class="actor col s4 m2 l2">
+    <a href="{{ $actor->url($layout['lang'])}}" class="actor col s6 m4 l2">
         <div class="card actor">
             <div class="card-image">
                 @if($actor->thumb() !== null)
@@ -80,6 +84,19 @@
     @endforeach
 </div>
 @endif
+
+<h3>Více na</h3>
+@if(isset($show->imdb_id))
+<div class="col s12">
+    <a href="http://www.imdb.com/title/{{$show->imdb_id}}/" target="_blank">Imdb.com</a>
+</div>
+@endif
+@if(isset($show->thetvdb_id))
+<div class="col s12">
+    <a href="http://thetvdb.com/?tab=series&id={{$show->thetvdb_id}}" target="_blank" class="col s12">TheTvDb.com</a>
+</div>
+@endif
+
 <h3>Komentáře</h3>
 @include('components.comments.form', ['model' => $show])
 @include('components.comments.display', ['comments' => $show->comments])

@@ -68,13 +68,8 @@ class Episode extends Authenticatable {
         $show = Show::find($this->show_id);
         $lang = isset($lang) ? $lang : DEF_LANG;
         $prefix = $show->url($lang) . '/';
-        
-        
         $slug = 's' . str_pad($this->season_number, 2, '0', STR_PAD_LEFT)  . 'e' . str_pad($this->episode_number, 2, '0', STR_PAD_LEFT) ;
-        
-       
         return $prefix . $slug;
-        
     }
 
     public function views($periond = null) {

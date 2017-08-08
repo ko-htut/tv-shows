@@ -17,7 +17,7 @@ class EpisodeTranslation extends Authenticatable {
      * @var array
      */
     protected $fillable = [
-        'episode_id', 'lang', 'title', 'slug', 'content', 'tattos', 'meta_title', 'meta_description', 'active',
+        'episode_id', 'lang', 'title', 'content', 'tattos', 'meta_title', 'meta_description', 'active',
     ];
 
     /**
