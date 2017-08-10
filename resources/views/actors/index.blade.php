@@ -2,8 +2,7 @@
 @section('meta_title', 'Seriálovna.cz :: Herci ')
 @section('meta_description', 'Herci v televizních seriálech')
 @section('content')
-<h1>Herci v seriálech</h1>
-
+<h1>Herci v televizních seriálech</h1>
 <div id="snippet-wrapper">
     <form class="ajax" id="filter" action="GET">
         <div class="row">

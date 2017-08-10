@@ -7,7 +7,6 @@ use App\Functions\Utils;
 use App\Android\Api;
 
 
-
 define('DEFAULT_LANGUAGE', 'en');
 define('DEFAULT_LIMIT', 20);
 define('FIRST_PAGE', 0);

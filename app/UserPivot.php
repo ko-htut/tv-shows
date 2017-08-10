@@ -5,11 +5,11 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class ActorPivot extends Authenticatable {
+class UserPivot extends Authenticatable {
 
     use Notifiable;
 
-    protected $table = 'actors_to_models';
+    protected $table = 'users_to_models';
 
     /**
      * The attributes that are mass assignable.
@@ -19,7 +19,7 @@ class ActorPivot extends Authenticatable {
     
     
     protected $fillable = [
-        'actor_id', 'model_id', 'model_type', 'active'
+        'user_id', 'model_id', 'model_type', 'action', 'active'
     ];
 
     /**
@@ -31,6 +31,7 @@ class ActorPivot extends Authenticatable {
     ];
     
     
+
     
 
 }

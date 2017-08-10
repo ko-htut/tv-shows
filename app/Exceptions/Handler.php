@@ -44,6 +44,8 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        //$showControler = new \App\Http\Controllers\ShowsController;
+        //$showControler->search();
         return parent::render($request, $exception);
     }
 

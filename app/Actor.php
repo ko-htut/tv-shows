@@ -29,67 +29,47 @@ class Actor extends Authenticatable {
     protected $hidden = [
     ];
 
+    /* Files */
+
+    public function files() {
+        return $this->morphMany('App\File', 'model');
+    }
+
+    public function thumb() {
+        return $this->files()->where('type', 'thumb')->orderBy('sort', 'desc')->first();
+    }
+
+    public function placeholder() {
+        return '/storage/app/public/img/placeholders/actor.jpg';
+    }
+
+    /* Comments */
+
+    public function comments() {
+        return $this->morphMany('App\Comment', 'model');
+    }
+
+    /* Shows */
+    /* With pivot table */
+
+    public function shows() {
+        return $this->morphedByMany('App\Show', 'model', 'actors_to_models');
+    }
+
+    /* Functions */
+
+    /* Returns this class name App\Actor */
+
+    public function getTypeAttribute() {
+        return get_class($this);
+    }
+
     public function age() {
         if ($this->attributes['birthday'] > 0) {
             return floor((time() - strtotime($this->attributes['birthday'])) / 31556926); //31556926 is the number of seconds in a year.
         } else {
             return false;
         }
-    }
-
-    public function thumb() {
-        $thumb = $this->hasOne('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Actor')->where('type', '=', 'thumb')->first();
-        if ($thumb) {
-            $ch = curl_init($thumb->external_patch);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            if ($retcode != 200) {
-                $cachedUrl = 'http://thetvdb.com/' . '/banners/_cache/actors/' . $this->thetvdb_id . '.jpg';
-                $ch = curl_init($cachedUrl);
-                curl_setopt($ch, CURLOPT_NOBODY, true);
-                curl_exec($ch);
-                $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
-                if ($retcode == 200) {
-                    $thumb->external_patch = $cachedUrl;
-                    return $thumb;
-                } else {
-                    $thumb->external_patch = 'http://thetvdb.com/' . '/banners/actors/0.jpg';
-                    return $thumb;
-                }
-            } else {
-                return $thumb;
-            }
-        }
-        $thumb = new File;
-        $thumb->external_patch = '/storage/app/public/img/placeholders/actor.jpg';
-        return $thumb;
-    }
-
-    public function thumbs() {
-        
-    }
-
-    public function videos() {
-        
-    }
-
-    public function views($periond = null) {
-        
-    }
-
-    public function getTypeAttribute() {
-        return get_class($this);
-    }
-
-    public function comments() {
-        return $this->morphMany('App\Comment', 'model');
-    }
-
-    public function votes() {
-        
     }
 
     public function url($lang = null) {
@@ -112,6 +92,16 @@ class Actor extends Authenticatable {
                     ->where('id', $this->id)
                     ->update(['slug' => $slug]);
         }
+    }
+
+    /* TODO */
+
+    public function votes() {
+        
+    }
+
+    public function views($periond = null) {
+        
     }
 
 }

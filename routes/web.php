@@ -24,8 +24,6 @@ Route::get('import/{thetvdbId?}', 'ShowsController@import', function ($thetvdbId
 });
 
 
-
-
 Route::group(['prefix' => 'cron'], function() {
     Route::get('import', 'CronController@import'); //-> call the server.cz/import
 });
@@ -33,6 +31,10 @@ Route::group(['prefix' => 'cron'], function() {
 
 Route::get('api', 'ShowsController@api');
 Route::get('images', 'ShowsController@images');
+
+Route::post('search', 'ShowsController@search');
+Route::get('search', 'ShowsController@search');
+
 Route::get('update-shows-slugs', 'ShowsController@updateSlugs');
 
 Route::get('/', 'ShowsController@index', function ($lang) {
@@ -40,9 +42,11 @@ Route::get('/', 'ShowsController@index', function ($lang) {
 });
 
 
-Route::get('actors', 'ActorsController@index', function ($slug) {
-    
-});
+Route::get('actors', 'ActorsController@index');
+
+Route::get('calendar', 'PagesController@calendar');
+
+
 
 Route::group(['prefix' => '{lang}'], function() {
 

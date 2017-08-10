@@ -69,6 +69,10 @@ class UsersController extends LayoutController {
      */
     public function update(Request $request, User $user) {
 
+        if ($request->get('uId') != \Auth::user()->id) {
+            return Redirect::back();
+        }
+
         $validator = Validator::make($request->all(), [
                     'username' => 'required|unique:users,username,' . $user->id . '|min:2|max:80',
                     'email' => 'required|email|unique:users,email,' . $user->id . '|min:3|max:80',
@@ -95,20 +99,19 @@ class UsersController extends LayoutController {
 
             $avatar = $request->file('avatar');
             if ($avatar) {
-                $patch = 'public/img/users/';//storage dir
+                $patch = 'public/img/users/'; //storage dir
                 $filename = 'avatar-' . $user->id . '.' . $avatar->getClientOriginalExtension();
                 $avatar->storeAs($patch, $filename);
                 $arr = [
                     'type' => 'avatar',
-                    'patch' => '/storage/app/'. $patch . $filename,//+add prefix
+                    'patch' => '/storage/app/' . $patch . $filename, //+add prefix
                     'extension' => $avatar->getClientOriginalExtension(),
                     'file_size' => $avatar->getClientSize(),
                     'model_id' => $user->id,
                     'model_type' => $user->type,
                 ];
                 File::updateOrCreate(
-                    ['model_id' => $user->id, 'model_type' => $user->type, 'type' => 'avatar'],
-                    $arr
+                        ['model_id' => $user->id, 'model_type' => $user->type, 'type' => 'avatar'], $arr
                 );
                 //::TODO Need to delete files if diferent extension at disk.
             }
@@ -126,7 +129,6 @@ class UsersController extends LayoutController {
      * @return \Illuminate\Http\Response
      */
     public function destroy(User $user) {
-        dd('delete user');
         $user->delete();
         return Redirect::back();
     }

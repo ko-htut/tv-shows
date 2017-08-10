@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Language;
-use App\Term;
 use App\File;
 use App\Show;
 use App\Select;
 use DB;
 use App\Functions\Utils;
 use View;
-use Image;
-use Illuminate\Support\Facades\Route;
+use Request;
 use Cocur\Slugify\Slugify;
+use App\UserPivot;
 
 define('THETVDB_API_KEY', '5EA3012696C40059');
 
@@ -150,27 +148,74 @@ class ShowsController extends LayoutController {
             $c->updateShow($show->thetvdb_id);
         }
 
+        //Users actions
+        $isFavourite = false;
+        if (\Auth::user()) {
+            $arr = [
+                'user_id' => \Auth::user()->id,
+                'model_id' => $show->id,
+                'model_type' => $show->type,
+                'action' => 'follow',
+            ];
+            $isFavourite = UserPivot::where($arr)->first() ? true : false;
+        }
+
         $season = null;
         $seasonNum = null;
-        if (Utils::isAjax() && isset($_GET['season'])) {
+        if (Utils::isAjax()) {
+
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");
-            $season = $show->seasonEpisodes($_GET['season']);
-            $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
-            $snippets = ['snippet-season-' . $_GET['season'] => $view];
-            print json_encode(['snippets' => $snippets]);
-            exit();
-        } else if (isset($_GET['season'])) {
+
+            if (isset($_GET['season']) && $_GET['season'] >= 1) {
+                $season = $show->seasonEpisodes($_GET['season']);
+                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
+                $snippets = ['snippet-season-' . $_GET['season'] => $view];
+                print json_encode(['snippets' => $snippets]);
+                exit();
+            }
+
+            //Actions 
+            if (isset($_GET['favourite']) && $_GET['favourite'] == true) {
+
+                if (\Auth::user()) {
+                    $arr = [
+                        'user_id' => \Auth::user()->id,
+                        'model_id' => $show->id,
+                        'model_type' => $show->type,
+                        'action' => 'follow',
+                    ];
+                    $isFavourite = false;
+                    $pivot = UserPivot::where($arr)->first();
+                    if ($pivot) {
+                        $pivot->delete();
+                        $isFavourite = false;
+                    } else {
+                        UserPivot::create($arr);
+                        $isFavourite = true;
+                    }
+
+                    $view = View::make('shows.ajax.favourite', compact(['isFavourite']))->render();
+                    $snippets = ['snippet-favourite' => $view];
+                    print json_encode(['snippets' => $snippets]);
+                    exit();
+                }
+
+                exit();
+            }
+        } else if (isset($_GET['season']) && $_GET['season'] >= 1) {
             $season = $show->seasonEpisodes($_GET['season']);
             $seasonNum = $_GET['season'];
         }
 
+        $gallery = $show->files()->where('type', 'fanart')->orderBy('sort', 'desc')->get();
+        $fanart = $show->files()->where('type', 'fanart')->orderBy('sort', 'desc')->first();
 
-        return view('shows.detail', compact(['show', 'season', 'seasonNum']));
+        return view('shows.detail', compact(['show', 'season', 'seasonNum', 'gallery', 'fanart', 'isFavourite']));
     }
 
-    //TODO COPY
+    //TODO COPY HOW
     public function detail($slug) {
 
         $lang = DEF_LANG;
@@ -202,30 +247,81 @@ class ShowsController extends LayoutController {
             }
         }
 
-
-
         if (isset($_GET['update']) && $_GET['update'] == 'true') {
             $c = new ShowsController;
             $c->updateShow($show->thetvdb_id);
         }
 
+
+        //Users actions
+        $isFavourite = false;
+        if (\Auth::user()) {
+            $arr = [
+                'user_id' => \Auth::user()->id,
+                'model_id' => $show->id,
+                'model_type' => $show->type,
+                'action' => 'follow',
+            ];
+            $isFavourite = UserPivot::where($arr)->first() ? true : false;
+        }
+
+
         $season = null;
         $seasonNum = null;
-        if (Utils::isAjax() && isset($_GET['season'])) {
+
+
+        if (Utils::isAjax()) {
+
             header("Cache-Control: no-cache, no-store, must-revalidate");
             header("Pragma: no-cache");
             header("Expires: 0");
-            $season = $show->seasonEpisodes($_GET['season']);
-            $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
-            $snippets = ['snippet-season-' . $_GET['season'] => $view];
-            print json_encode(['snippets' => $snippets]);
-            exit();
-        } else if (isset($_GET['season'])) {
+
+            if (isset($_GET['season']) && $_GET['season'] >= 1) {
+                $season = $show->seasonEpisodes($_GET['season']);
+                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
+                $snippets = ['snippet-season-' . $_GET['season'] => $view];
+                print json_encode(['snippets' => $snippets]);
+                exit();
+            }
+
+            //Actions 
+            if (isset($_GET['favourite']) && $_GET['favourite'] == true) {
+
+                if (\Auth::user()) {
+                    $arr = [
+                        'user_id' => \Auth::user()->id,
+                        'model_id' => $show->id,
+                        'model_type' => $show->type,
+                        'action' => 'follow',
+                    ];
+                    $isFavourite = false;
+                    $pivot = UserPivot::where($arr)->first();
+                    if ($pivot) {
+                        $pivot->delete();
+                        $isFavourite = false;
+                    } else {
+                        UserPivot::create($arr);
+                        $isFavourite = true;
+                    }
+
+                    $view = View::make('shows.ajax.favourite', compact(['isFavourite']))->render();
+                    $snippets = ['snippet-favourite' => $view];
+                    print json_encode(['snippets' => $snippets]);
+                    exit();
+                }
+
+                exit();
+            }
+        } else if (isset($_GET['season']) && $_GET['season'] >= 1) {
             $season = $show->seasonEpisodes($_GET['season']);
             $seasonNum = $_GET['season'];
         }
 
-        return view('shows.detail', compact(['show', 'season', 'seasonNum']));
+
+        $gallery = $show->files()->where('type', 'fanart')->orderBy('sort', 'desc')->get();
+        $fanart = $show->files()->where('type', 'fanart')->orderBy('sort', 'desc')->first();
+
+        return view('shows.detail', compact(['show', 'season', 'seasonNum', 'gallery', 'fanart', 'isFavourite']));
     }
 
     public function thetvdbshows() {
@@ -265,9 +361,8 @@ class ShowsController extends LayoutController {
 
             $shows = DB::table('thetvdbshows')
                     ->select('*')
-                    ->where('rating_count', '>=', 20)
+                    ->where('rating_count', '>=', 10)
                     ->where('fanart', '=', 1)
-                    ->where('poster', '=', 1)
                     ->whereNotIn('thetvdb_id', $arr)
                     ->orderBy('rating_count', 'desc')
                     ->limit(1)
@@ -275,12 +370,14 @@ class ShowsController extends LayoutController {
                     //->offset($lim * $pg - $lim)
                     ->get();
         } else {
+            //
             $shows = DB::table('thetvdbshows')
                     ->select('*')
                     ->where('thetvdb_id', '=', $thetvdbId)
                     ->limit(1)
                     ->get();
         }
+
 
         $client = new \Adrenth\Thetvdb\Client();
         $token = $client->authentication()->login(THETVDB_API_KEY);
@@ -358,7 +455,13 @@ class ShowsController extends LayoutController {
                     //dd($actorsData);
                     //images
                     $client->setLanguage('en');
-                    $posters = $client->series()->getImagesWithQuery($thetvdbId, ['keyType' => 'poster'])->getData()->all();
+
+                    try {
+                        $posters = $client->series()->getImagesWithQuery($thetvdbId, ['keyType' => 'poster'])->getData()->all();
+                    } catch (\Exception $e) {
+                        
+                    }
+
                     if (!empty($posters)) {
                         foreach ($posters as $poster) {
 
@@ -517,6 +620,8 @@ class ShowsController extends LayoutController {
             'en', 'cs', 'de', 'es', 'fr', 'ru',
                 //'pl', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'he', 'ja', 'pt', 'zh', 'sl', 'hr', 'ko', 'sv', 'no'
         ];
+
+        $badLangs = ['ja', 'he', 'zh', 'ko'];
 
         foreach ($langs as $lang) {
 
@@ -819,23 +924,41 @@ class ShowsController extends LayoutController {
         }
     }
 
-    public function search($query, $lang) {
+    public function search(Request $request = null, $q = null) {
+        header("Content-type:application/json");
+
+        $lang = isset($_GET['lang']) ? $_GET['lang'] : DEF_LANG;
+        $query = isset($_GET['q']) ? $_GET['q'] : null;
+        if ($q !== null) {
+            $query = $q;
+        }
+
         $shows = new Show;
         if (isset($query)) {
-            //Search
             $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
             $shows = $shows->where('translation.title', 'LIKE', "%$query%");
-            //$shows = $shows->where('translation.lang', '=', $lang); ////All translations
             $shows = $shows->select('shows.*')->distinct();
-            $shows = $shows->paginate(100);
+            $shows = $shows->limit(5)->get();
         }
-        $result = null;
+        $results = null;
         foreach ($shows as $show) {
-            $name = $show->translation($lang)->title;
-            $img = $show->poster()->external_patch;
-            $result[$name] = $img;
+            $results[] = [
+                'name' => $show->translation($lang)->title,
+                'icon' => $show->poster() !== null ? $show->poster()->src() : null,
+                'url' => $show->url($lang),
+            ];
         }
-        return json_encode($result);
+
+        if (!$results) {
+            $results[] = [
+                'name' => 'Nic nebylo nalezeno',
+                'url' => null,
+            ];
+        }
+
+        echo json_encode($results, JSON_PRETTY_PRINT);
+        exit;
+        
     }
 
     //New Api

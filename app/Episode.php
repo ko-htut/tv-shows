@@ -68,7 +68,7 @@ class Episode extends Authenticatable {
         $show = Show::find($this->show_id);
         $lang = isset($lang) ? $lang : DEF_LANG;
         $prefix = $show->url($lang) . '/';
-        $slug = 's' . str_pad($this->season_number, 2, '0', STR_PAD_LEFT)  . 'e' . str_pad($this->episode_number, 2, '0', STR_PAD_LEFT) ;
+        $slug = 's' . str_pad($this->season_number, 2, '0', STR_PAD_LEFT) . 'e' . str_pad($this->episode_number, 2, '0', STR_PAD_LEFT);
         return $prefix . $slug;
     }
 
@@ -83,9 +83,44 @@ class Episode extends Authenticatable {
     public function getTypeAttribute() {
         return get_class($this);
     }
-    
+
     public function votes() {
         
+    }
+
+    public function next() {
+        $next = Episode::where('show_id', $this->show_id)
+                ->where('season_number', $this->season_number)
+                ->where('season_number', '>', 0)
+                ->where('episode_number', $this->episode_number + 1)
+                ->first();
+        if (!$next) {
+            $next = Episode::where('show_id', $this->show_id)
+                    ->where('season_number', $this->season_number + 1)
+                    ->where('season_number', '>', 0)
+                    ->where('episode_number', 1)
+                    ->first();
+        }
+        return $next;
+    }
+
+    public function prev() {
+        $prev = Episode::where('show_id', $this->show_id)
+                ->where('season_number', $this->season_number)
+                ->where('season_number', '>', 0)
+                ->where('episode_number', $this->episode_number - 1)
+                ->first();
+        if (!$prev) {
+            $prev = Episode::where('show_id', $this->show_id)
+                    ->where('season_number', $this->season_number - 1)
+                    ->where('episode_number', \DB::table('episodes')
+                            ->where('show_id', $this->show_id)
+                            ->where('season_number', $this->season_number - 1)
+                            ->where('season_number', '>', 0)
+                            ->max('episode_number'))
+                    ->first();
+        }
+        return $prev;
     }
 
 }

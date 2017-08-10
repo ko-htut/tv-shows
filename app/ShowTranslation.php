@@ -52,12 +52,14 @@ class ShowTranslation extends Authenticatable {
         }
     }
 
+   
+    public function getMetaTitleAttribute($value) {
+        return !$value ? mb_substr( $this->title  . ' - televizní seriál | Seriálovna.cz', 0, 70) : $value;
+    }
+    
     public function getMetaDescriptionAttribute($value) {
         return !$value ? mb_substr($this->content, 0, 160) : $value;
     }
     
-    public function getMetaTitleAttribute($value) {
-        return !$value ? mb_substr($this->title, 0, 60) : $value;
-    }
 
 }

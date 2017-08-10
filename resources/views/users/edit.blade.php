@@ -12,6 +12,7 @@
             <form method="POST" action="{{route('users.update', Auth::user()->id)}}" enctype="multipart/form-data">
                 {{ csrf_field() }}
                 {{ method_field('PUT') }}
+                <input type="hidden" name="uId" value="{{ $user->id }}">
                 <div class="row">
 
                     <div class="input-field col l6 m6 s12 {{ $errors->has('username') ? ' invalid' : '' }}">
@@ -39,8 +40,8 @@
                     <div class="input-field col l6 m6 s12">
                         <select class="icons" name="gender" id="gender">
                             <option value="" disabled selected>Vyberte pohlaví</option>
-                            <option value="M" data-icon="/public/img/placeholders/male.png" class="circle" @if($user->gender == "M") selected @endif>Muž</option>
-                            <option value="F" data-icon="/public/img/placeholders/female.png" class="circle" @if($user->gender == "F") selected @endif>Žena</option>
+                            <option value="M" data-icon="/storage/app/public/img/placeholders/male.png" class="circle" @if($user->gender == "M") selected @endif>Muž</option>
+                            <option value="F" data-icon="/storage/app/public/img/placeholders/female.png" class="circle" @if($user->gender == "F") selected @endif>Žena</option>
                         </select>
                         <label>Pohlaví</label>
                     </div>

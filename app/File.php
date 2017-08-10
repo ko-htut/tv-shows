@@ -59,7 +59,7 @@ class File extends Authenticatable {
     public function getSrc($width, $type = 'normal') {
 
         //return $this->src();//Temp. Fix 
-        
+
         if ($type == 'normal') {
             $src = $this->resizeTo($width);
         } else if ($type == 'thumb') {
@@ -82,7 +82,7 @@ class File extends Authenticatable {
         }
 
         $img = Image::make(Utils::url_get_contents($this->src()));
-        
+
         $img->resize($width, null, function ($constraint) {
             $constraint->aspectRatio();
         });
@@ -100,11 +100,11 @@ class File extends Authenticatable {
         $remote_full_patch = 'http://' . $_SERVER['SERVER_NAME'] . '/' . $full_patch;
 
         if (Utils::remote_file_exists($remote_full_patch)) {
-            return $remote_full_patch;//TODO check...
+            return $remote_full_patch; //TODO check...
         }
 
         $img = Image::make(Utils::url_get_contents($this->src()));
-        
+
         $img->resize($width, null, function ($constraint) {
             $constraint->aspectRatio();
         });
@@ -128,9 +128,8 @@ class File extends Authenticatable {
         }
         return strtok($ext, '?');
     }
-    
-    //TESTing
-    public function model(){
+
+    public function model() {
         return $this->morphTo();
     }
 

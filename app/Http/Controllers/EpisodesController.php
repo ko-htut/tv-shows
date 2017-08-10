@@ -13,7 +13,7 @@ use App\Term;
 use App\Show;
 use App\Episode;
 use App\Option;
-use App\Select;
+use App\UserPivot;
 
 class EpisodesController extends LayoutController {
 
@@ -56,7 +56,51 @@ class EpisodesController extends LayoutController {
         $seasonNumber = isset($numbers[0][0]) ? intval($numbers[0][0]) : 0;
         $episodeNumber = isset($numbers[0][1]) ? intval($numbers[0][1]) : 0;
         $episode = Episode::where('show_id', '=', $show->id)->where('season_number', '=', $seasonNumber)->where('episode_number', '=', $episodeNumber)->first();
-        return view('episodes.detail', compact(['show', 'episode']));
+
+        //Users actions
+        $isWatched = false;
+        if (\Auth::user()) {
+            $arr = [
+                'user_id' => \Auth::user()->id,
+                'model_id' => $episode->id,
+                'model_type' => $episode->type,
+                'action' => 'watched',
+            ];
+            $isWatched = UserPivot::where($arr)->first() ? true : false;
+        }
+
+        if (Utils::isAjax()) {
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+            //Actions 
+            if (isset($_GET['watched']) && $_GET['watched'] == true) {
+                if (\Auth::user()) {
+                    $arr = [
+                        'user_id' => \Auth::user()->id,
+                        'model_id' => $episode->id,
+                        'model_type' => $episode->type,
+                        'action' => 'watched',
+                    ];
+                    $isWatched = false;
+                    $pivot = UserPivot::where($arr)->first();
+                    if ($pivot) {
+                        $pivot->delete();
+                        $isWatched = false;
+                    } else {
+                        UserPivot::create($arr);
+                        $isWatched = true;
+                    }
+                    $view = View::make('episodes.ajax.watched', compact(['isWatched']))->render();
+                    $snippets = ['snippet-watched' => $view];
+                    print json_encode(['snippets' => $snippets]);
+                    exit();
+                }
+                exit();
+            }
+        }
+        
+        return view('episodes.detail', compact(['show', 'episode', 'isWatched']));
     }
 
     public function detailTranslate($lang, $slugShow, $slugEpisode) {
@@ -93,7 +137,51 @@ class EpisodesController extends LayoutController {
         $seasonNumber = isset($numbers[0][0]) ? intval($numbers[0][0]) : 0;
         $episodeNumber = isset($numbers[0][1]) ? intval($numbers[0][1]) : 0;
         $episode = Episode::where('show_id', '=', $show->id)->where('season_number', '=', $seasonNumber)->where('episode_number', '=', $episodeNumber)->first();
-        return view('episodes.detail', compact(['show', 'episode']));
+
+        //Users actions
+        $isWatched = false;
+        if (\Auth::user()) {
+            $arr = [
+                'user_id' => \Auth::user()->id,
+                'model_id' => $episode->id,
+                'model_type' => $episode->type,
+                'action' => 'watched',
+            ];
+            $isWatched = UserPivot::where($arr)->first() ? true : false;
+        }
+
+        if (Utils::isAjax()) {
+            header("Cache-Control: no-cache, no-store, must-revalidate");
+            header("Pragma: no-cache");
+            header("Expires: 0");
+            //Actions 
+            if (isset($_GET['watched']) && $_GET['watched'] == true) {
+                if (\Auth::user()) {
+                    $arr = [
+                        'user_id' => \Auth::user()->id,
+                        'model_id' => $episode->id,
+                        'model_type' => $episode->type,
+                        'action' => 'watched',
+                    ];
+                    $isWatched = false;
+                    $pivot = UserPivot::where($arr)->first();
+                    if ($pivot) {
+                        $pivot->delete();
+                        $isWatched = false;
+                    } else {
+                        UserPivot::create($arr);
+                        $isWatched = true;
+                    }
+                    $view = View::make('episodes.ajax.watched', compact(['isWatched']))->render();
+                    $snippets = ['snippet-watched' => $view];
+                    print json_encode(['snippets' => $snippets]);
+                    exit();
+                }
+                exit();
+            }
+        }
+
+        return view('episodes.detail', compact(['show', 'episode', 'isWatched']));
     }
 
 }

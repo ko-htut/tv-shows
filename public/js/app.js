@@ -18,7 +18,21 @@ $(document).on('click', 'a.ajax, div.ajax', function (e) {
     $.ajax({
         url: $el.attr('href')
     }).done(function () {
-        window.history.pushState("", "", $el.attr('href'));
+
+        if ($el.data('history') != false) {
+            window.history.pushState("", "", $el.attr('href'));
+        }
+
+        //Updateing dates to users format
+
+        var $dates = $('[data-date]');
+        $($dates).each(function () {
+            var $el = $(this);
+            var $mTime = new Date($el.data('date'));
+            $el.text($mTime.toLocaleDateString());
+        });
+    
+
     });
 });
 
@@ -66,14 +80,14 @@ $(document).on('change', 'form#filter select, form#filter input', function (e) {
     });
 });
 
+
+
 $(document).on('click', '[data-next]', function (e) {
     e.preventDefault();
     $(this).addClass("loading");
     $(':input[value=""]').attr('disabled', true);
-    $('#filter').find('[name="page"]').val(parseInt($('#filter').find('[name="page"]').val()) + 1);//get from more btn
-    //$('#filter').find('[name="page"]').val(parseInt($('[data-next]').val()));
-    
-    
+    $('#filter').find('[name="page"]').val(parseInt($('#filter').find('[name="page"]').val()) + 1);
+
     var ajaxData = $('#filter').serialize();
     $(':input[value=""]').attr('disabled', false);
     $.ajax({
@@ -84,3 +98,4 @@ $(document).on('click', '[data-next]', function (e) {
         window.history.pushState("", "", decodeURIComponent('?' + ajaxData));
     });
 });
+

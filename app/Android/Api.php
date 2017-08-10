@@ -586,10 +586,6 @@ class Api {
                 ->where('episode_id IN %in', $episodesIds)
                 ->fetchAssoc('episode_id');
         
-        
-
-        
-
         foreach ($episodes as $episode) {
 
             $id = $episode['episode_id'];

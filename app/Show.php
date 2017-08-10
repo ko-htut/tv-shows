@@ -28,6 +28,72 @@ class Show extends Authenticatable {
     protected $hidden = [
     ];
 
+    /* Files */
+
+    public function files() {
+        return $this->morphMany('App\File', 'model');
+    }
+
+    public function fanart() {
+        return $this->files()->where('type', 'fanart')->orderBy('sort', 'desc')->first();
+    }
+
+    public function fanarts() {
+        return $this->files()->where('type', 'fanart')->orderBy('sort', 'desc')->get();
+    }
+
+    public function poster() {
+        return $this->files()->where('type', 'poster')->orderBy('sort', 'desc')->first();
+    }
+
+    public function posters() {
+        return $this->files()->where('type', 'poster')->orderBy('sort', 'desc')->get();
+    }
+
+    /* Comments */
+
+    public function comments() {
+        return $this->morphMany('App\Comment', 'model');
+    }
+
+    /* Actors */
+
+    public function actors() {
+        return $this->morphToMany('App\Actor', 'model', 'actors_to_models');
+    }
+
+    public function actorsLimit($limit = 6) {
+        return $this->actors()->groupBy('slug')->limit($limit)->orderBy('sort', 'asc')->get();
+    }
+
+    /* Terms */
+
+    public function genres() {
+        return $this->morphToMany('App\Term', 'model', 'terms_to_models');
+    }
+
+    /* Episodes */
+
+    public function episodes() {
+        return $this->hasMany('App\Episode');
+    }
+
+    public function seasonEpisodes($season = null) {
+        return $this->episodes()->where('season_number', $season)->groupBy(DB::raw('episode_number'))->orderBy('first_aired')->get();
+    }
+
+    public function seasonEpisodesCount($season = null) {
+        return count(DB::table('episodes')->selectRaw('count(*)')->where('show_id', $this->id)->where('season_number', $season)->groupBy('episode_number')->get());
+    }
+
+    public function lastSeason() {
+        return $this->hasMany('App\Episode')->max('season_number');
+    }
+
+    public function firstSeason() {
+        return $this->hasMany('App\Episode')->where('season_number', '>', 0)->min('season_number');
+    }
+
     /**
      * Get the object record associated with the object. - Defining The Inverse Of The Relationship
      */
@@ -52,6 +118,7 @@ class Show extends Authenticatable {
         }
         return $translation;
     }
+    
 
     public function url($lang = null) {
         $lang = isset($lang) ? $lang : DEF_LANG;
@@ -65,119 +132,6 @@ class Show extends Authenticatable {
         } else {
             return $prefix . $this->id;
         }
-    }
-
-    public function fanart() {
-        $fanarts = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'fanart')->orderBy('sort', 'desc')->get(); //
-        //return $fanarts[0];
-        //dd($fanarts);
-        foreach ($fanarts as $fanart) {
-
-            $ch = curl_init($fanart->external_patch);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            //$retcode >= 400 -> not found, $retcode = 200, found.
-            curl_close($ch);
-            if ($retcode == 200) {
-                return $fanart;
-            } else {
-                \App\File::destroy($fanart->id);
-            }
-        }
-        return null;
-    }
-
-    public function fanarts() {
-        $fanarts = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'fanart')->orderBy('sort', 'desc')->limit(10)->get(); //
-        foreach ($fanarts as &$fanart) {
-            /*
-              $ch = curl_init($fanart->external_patch);
-              curl_setopt($ch, CURLOPT_NOBODY, true);
-              curl_exec($ch);
-              $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-              //$retcode >= 400 -> not found, $retcode = 200, found.
-              curl_close($ch);
-              if ($retcode != 200) {
-              \App\File::destroy($fanart->id);
-              unset($fanart);
-              }
-             */
-        }
-        return $fanarts;
-        //dd($fanarts);
-    }
-
-    public function poster() {
-        $posters = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'poster')->orderBy('sort', 'desc')->get(); //
-        foreach ($posters as $poster) {
-
-            $ch = curl_init($poster->external_patch);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            //$retcode >= 400 -> not found, $retcode = 200, found.
-            curl_close($ch);
-            if ($retcode == 200) {
-                return $poster;
-            } else {
-                \App\File::destroy($poster->id);
-            }
-        }
-        return null;
-    }
-
-    public function posters() {
-        $posters = $this->hasMany('App\File', 'model_id', 'id')->where('model_type', '=', 'App\Show')->where('type', '=', 'poster')->orderBy('sort', 'desc')->get(); //
-        foreach ($posters as &$file) {
-            $ch = curl_init($file->external_patch);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
-            curl_exec($ch);
-            $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            //$retcode >= 400 -> not found, $retcode = 200, found.
-            curl_close($ch);
-            if ($retcode != 200) {
-                \App\File::destroy($file->id);
-                unset($file);
-            }
-        }
-        return $posters;
-    }
-
-    public function actors($limit = 6) {
-        $actors = Actor::join('actors_to_models as pivot', 'pivot.actor_id', '=', 'actors.id')
-                ->where('model_id', '=', $this->id)
-                ->where('model_type', '=', 'App\Show')
-                ->select('actors.*')// just to avoid fetching anything from joined table
-                ->orderBy('sort', 'asc')
-                ->limit($limit)
-                ->distinct()
-                ->get();
-        return $actors;
-    }
-
-    public function allEpisodes() {
-        return $this->hasMany('App\Episode')->where('season_number', '>', 0);
-    }
-
-    public function seasonEpisodes($season = null) {
-        return $this->hasMany('App\Episode')->where('season_number', '=', $season)->get();
-    }
-
-    public function seasonEpisodesCount($season = null) {
-        return $this->hasMany('App\Episode')->where('season_number', '=', $season)->count();
-    }
-
-    public function lastSeason() {
-        return $this->hasMany('App\Episode')->max('season_number');
-    }
-
-    public function firstSeason() {
-        return $this->hasMany('App\Episode')->where('season_number', '>', 0)->min('season_number');
-    }
-
-    public function genres() {
-        return $this->morphToMany('App\Term', 'model', 'terms_to_models', null, null);
     }
 
     public function status() {
@@ -207,17 +161,12 @@ class Show extends Authenticatable {
         return '';
     }
 
-  
     public function views($periond = null) {
         
     }
-    
+
     public function getTypeAttribute() {
         return get_class($this);
-    }
-
-    public function comments() {
-        return $this->morphMany('App\Comment', 'model');
     }
 
     public function votes() {

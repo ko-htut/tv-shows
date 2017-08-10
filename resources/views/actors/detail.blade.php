@@ -14,7 +14,7 @@
                 @if($a->thumb() !== null)
                 <div class="swiper-slide">
                     <!-- Required swiper-lazy class and image source specified in data-src attribute -->
-                    <img data-src="{{$a->thumb()->getSrc(300) }}" class="swiper-lazy">
+                    <img data-src="{{$a->thumb()->src() }}" class="swiper-lazy">
                     <!-- Preloader image -->
                     <div class="swiper-lazy-preloader swiper-lazy-preloader-black"></div>
                 </div>

@@ -22,7 +22,7 @@ class SitemapController extends Controller {
             $sitemap->add(SITE_URL . $prefix, null, 0.9, 'daily'); //Homepages
 
             if (DEF_LANG == $lang) {
-                $sitemap->add(SITE_URL . '/actors', null, 0.5, 'mothly'); //Actors
+                $sitemap->add(SITE_URL . '/actors', null, 0.5, 'monthly'); //Actors
             }
         }
 
@@ -158,7 +158,7 @@ class SitemapController extends Controller {
                     } else {
                         $pref = '/' . $lang;
                     }
-                    $sitemap->add(SITE_URL . $pref . $a->url(), $a->updated_at, 0.3, 'mothly');
+                    $sitemap->add(SITE_URL . $pref . $a->url(), $a->updated_at, 0.3, 'monthly');
                 }
             }
 
@@ -360,7 +360,7 @@ class SitemapController extends Controller {
                     } else {
                         $pref = '/' . $lang;
                     }
-                    $sitemap->add(SITE_URL . $pref . $a->url(), $a->updated_at, 0.3, 'mothly');
+                    $sitemap->add(SITE_URL . $pref . $a->url(), $a->updated_at, 0.3, 'monthly');
                 }
             }
 
@@ -447,7 +447,7 @@ class SitemapController extends Controller {
     public function generate() {
 
         $rand = rand(0, 2);
-
+    
         if ($rand == 0) {
             $this->pages();
             $this->networks();
