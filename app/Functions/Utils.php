@@ -61,10 +61,14 @@ class Utils {
 
 
         if ($actor['image']) {
+            
+            //http://thetvdb.com/banners/_cache/actors/48836.jpg
+            
             $fileArr = [
                 'type' => 'thumb',
                 'extension' => 'jpg',
-                'external_patch' => 'http://thetvdb.com/banners/' . $actor['image'],
+                //'external_patch' => 'http://thetvdb.com/banners/' . $actor['image'],
+                'external_patch' => 'http://thetvdb.com/banners/_cache/actors/'.$actor['thetvdb_id'].'.jpg',
                 'model_id' => $actorId,
                 'model_type' => 'App\Actor',
                 'base64' => ''];

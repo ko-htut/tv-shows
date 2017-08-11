@@ -50,8 +50,6 @@ class Actor extends Authenticatable {
     }
 
     /* Shows */
-    /* With pivot table */
-
     public function shows() {
         return $this->morphedByMany('App\Show', 'model', 'actors_to_models');
     }
@@ -62,14 +60,6 @@ class Actor extends Authenticatable {
 
     public function getTypeAttribute() {
         return get_class($this);
-    }
-
-    public function age() {
-        if ($this->attributes['birthday'] > 0) {
-            return floor((time() - strtotime($this->attributes['birthday'])) / 31556926); //31556926 is the number of seconds in a year.
-        } else {
-            return false;
-        }
     }
 
     public function url($lang = null) {

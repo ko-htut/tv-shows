@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use DB;
+use App\Episode;
 
 define('SITE_URL', 'http://www.serialovna.cz');
 
@@ -68,11 +69,14 @@ class SitemapController extends Controller {
     }
 
     public function episodes() {
+
+        
         $sitemap = \App::make("sitemap");
+
         $langs = [
             'en', 'cs', 'de', 'es', 'fr', 'pl', 'ru', 'da', 'fi', 'nl', 'it', 'hu', 'el', 'tr', 'pt', 'sl', 'sv', 'no', 'hr', 'he', 'ja', 'ko', 'zh'
         ];
-
+       
         $limit = 25000;
 
         foreach ($langs as $lang) {
@@ -81,7 +85,7 @@ class SitemapController extends Controller {
             //-----------------------------START EPISODES---------------------------
 
             $count = DB::table('episodes_translations')
-                    ->select(['shows_translations.slug as show_slug', 'episode_number', 'season_number', 'episodes_translations.updated_at'])
+                    ->select(['episodes.id'])
                     ->join('episodes', 'episodes.id', '=', 'episode_id')
                     ->join('shows_translations', 'shows_translations.show_id', '=', 'episodes.show_id')
                     ->whereRaw('shows_translations.lang = "' . $lang . '" AND season_number > 0 AND episode_number > 0 AND episodes_translations.lang = "' . $lang . '" AND (episodes_translations.title IS NOT NULL OR episodes_translations.content IS NOT NULL)')
@@ -95,7 +99,7 @@ class SitemapController extends Controller {
                 $offset = $page * $limit - $limit;
 
                 $episodes = DB::table('episodes_translations')
-                        ->select(['shows_translations.slug as show_slug', 'episode_number', 'season_number', 'episodes_translations.updated_at'])
+                        ->select(['episodes.id as id', 'shows_translations.slug as show_slug', 'episode_number', 'season_number', 'episodes_translations.updated_at as updated_at', 'shows_translations.show_id as show_id'])
                         ->join('episodes', 'episodes.id', '=', 'episode_id')
                         ->join('shows_translations', 'shows_translations.show_id', '=', 'episodes.show_id')
                         ->whereRaw('shows_translations.lang = "' . $lang . '" AND season_number > 0 AND episode_number > 0 AND episodes_translations.lang = "' . $lang . '" AND (episodes_translations.title IS NOT NULL OR episodes_translations.content IS NOT NULL)')
@@ -111,8 +115,11 @@ class SitemapController extends Controller {
                         $sitemap->store('xml', $xmlName);
                         $sitemap->model->resetItems();
                     }
-
-                    $sitemap->add(SITE_URL . '/' . $prefix . 'shows/' . $e->show_slug . '/s' . str_pad($e->season_number, 2, '0', STR_PAD_LEFT) . 'e' . str_pad($e->episode_number, 2, '0', STR_PAD_LEFT), $e->updated_at, 0.3, 'monthly');
+                    //$url = Episode::find($e->id)->url($lang);
+                    $showSlug = isset($e->show_slug) ? $e->show_slug : $e->show_id;
+                    $url = '/'. $prefix . 'shows/' .  $showSlug . '/s' . str_pad($e->season_number, 2, '0', STR_PAD_LEFT) . 'e' . str_pad($e->episode_number, 2, '0', STR_PAD_LEFT);
+        
+                    $sitemap->add(SITE_URL . $url, $e->updated_at, 0.3, 'monthly');
                 }
             }
 
@@ -447,7 +454,7 @@ class SitemapController extends Controller {
     public function generate() {
 
         $rand = rand(0, 2);
-    
+
         if ($rand == 0) {
             $this->pages();
             $this->networks();

@@ -112,113 +112,18 @@ class ShowsController extends LayoutController {
         return view('shows.index', compact(['filter', 'shows', 'lang', 'page', 'next_page', 'more', 'results']));
     }
 
-    public function detailTranslate($lang = null, $slug = null) {
-
-        if (!is_numeric($slug)) {
-            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                    ->where('slug', '=', $slug)
-                    ->where('lang', '=', $lang)
-                    ->select('shows.*')// just to avoid fetching anything from joined table
-                    ->first();
-
-            if (!$show) {
-                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                        ->where('slug', '=', $slug)
-                        ->select('shows.*')
-                        ->firstOrFail();
-            }
+    public function detail($first = null, $second = null) {
+    
+        $lang = null;
+        $slug = null;
+        if (!empty($second)) {
+            $lang = $first;
+            $slug = $second;
         } else {
-            $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                    ->where('shows.id', '=', $slug)
-                    ->where('lang', '=', $lang)
-                    ->select('shows.*')// just to avoid fetching anything from joined table
-                    ->first();
-
-            if (!$show) {
-                $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
-                        ->where('shows.id', '=', $slug)
-                        ->select('shows.*')
-                        ->firstOrFail();
-            }
+            $lang = DEF_LANG;
+            $slug = $first;
         }
-
-
-        if (isset($_GET['update']) && $_GET['update'] == 'true') {
-            $c = new ShowsController;
-            $c->updateShow($show->thetvdb_id);
-        }
-
-        //Users actions
-        $isFavourite = false;
-        if (\Auth::user()) {
-            $arr = [
-                'user_id' => \Auth::user()->id,
-                'model_id' => $show->id,
-                'model_type' => $show->type,
-                'action' => 'follow',
-            ];
-            $isFavourite = UserPivot::where($arr)->first() ? true : false;
-        }
-
-        $season = null;
-        $seasonNum = null;
-        if (Utils::isAjax()) {
-
-            header("Cache-Control: no-cache, no-store, must-revalidate");
-            header("Pragma: no-cache");
-            header("Expires: 0");
-
-            if (isset($_GET['season']) && $_GET['season'] >= 1) {
-                $season = $show->seasonEpisodes($_GET['season']);
-                $view = View::make('shows.ajax.season', compact(['season', 'lang']))->render();
-                $snippets = ['snippet-season-' . $_GET['season'] => $view];
-                print json_encode(['snippets' => $snippets]);
-                exit();
-            }
-
-            //Actions 
-            if (isset($_GET['favourite']) && $_GET['favourite'] == true) {
-
-                if (\Auth::user()) {
-                    $arr = [
-                        'user_id' => \Auth::user()->id,
-                        'model_id' => $show->id,
-                        'model_type' => $show->type,
-                        'action' => 'follow',
-                    ];
-                    $isFavourite = false;
-                    $pivot = UserPivot::where($arr)->first();
-                    if ($pivot) {
-                        $pivot->delete();
-                        $isFavourite = false;
-                    } else {
-                        UserPivot::create($arr);
-                        $isFavourite = true;
-                    }
-
-                    $view = View::make('shows.ajax.favourite', compact(['isFavourite']))->render();
-                    $snippets = ['snippet-favourite' => $view];
-                    print json_encode(['snippets' => $snippets]);
-                    exit();
-                }
-
-                exit();
-            }
-        } else if (isset($_GET['season']) && $_GET['season'] >= 1) {
-            $season = $show->seasonEpisodes($_GET['season']);
-            $seasonNum = $_GET['season'];
-        }
-
-        $gallery = $show->files()->where('type', 'fanart')->orderBy('sort', 'desc')->get();
-        $fanart = $show->files()->where('type', 'fanart')->orderBy('sort', 'desc')->first();
-
-        return view('shows.detail', compact(['show', 'season', 'seasonNum', 'gallery', 'fanart', 'isFavourite']));
-    }
-
-    //TODO COPY HOW
-    public function detail($slug) {
-
-        $lang = DEF_LANG;
+        
         if (!is_numeric($slug)) {
             $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
                     ->where('slug', '=', $slug)
@@ -958,7 +863,6 @@ class ShowsController extends LayoutController {
 
         echo json_encode($results, JSON_PRETTY_PRINT);
         exit;
-        
     }
 
     //New Api

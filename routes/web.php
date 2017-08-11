@@ -56,23 +56,23 @@ Route::group(['prefix' => '{lang}'], function() {
         
     });
 
-    Route::get('shows/{slug}', 'ShowsController@detailTranslate', function ($lang, $slug) {
+    Route::get('shows/{slug}', 'ShowsController@detail', function ($lang, $slug) {
         
     });
-    Route::get('shows/{slugShow}/{slugEpisode}', 'EpisodesController@detailTranslate', function ($lang, $slugShow, $slugEpisode) {
+    Route::get('shows/{slugShow}/{slugEpisode}', 'EpisodesController@detail', function ($lang, $slugShow, $slugEpisode) {
         
     });
 
     Route::get('actors', 'ActorsController@index', function ($lang) {
         
     });
-    Route::get('actors/{slug}', 'ActorsController@detailTranslation', function ($lang, $slug) {
+    Route::get('actors/{slug}', 'ActorsController@detail', function ($lang, $slug) {
         
     });
-    Route::get('networks/{slug}', 'NetworksController@detailTranslate', function ($lang, $slug) {
+    Route::get('networks/{slug}', 'NetworksController@detail', function ($lang, $slug) {
         
     });
-    Route::get('genres/{slug}', 'TermsController@detailTranslate', function ($lang, $slug) {
+    Route::get('genres/{slug}', 'TermsController@detail', function ($lang, $slug) {
         
     });
 });

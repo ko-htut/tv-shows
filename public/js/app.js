@@ -15,12 +15,14 @@ $(document).on('submit', 'form.ajax', function (e) {
 $(document).on('click', 'a.ajax, div.ajax', function (e) {
     e.preventDefault();
     var $el = $(this);
+    var $url = $el.attr('href') ? $el.attr('href') : $el.data('href');
+    
     $.ajax({
-        url: $el.attr('href')
+        url: $url
     }).done(function () {
 
         if ($el.data('history') != false) {
-            window.history.pushState("", "", $el.attr('href'));
+            window.history.pushState("", "", $url);
         }
 
         //Updateing dates to users format

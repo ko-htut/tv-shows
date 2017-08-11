@@ -79,24 +79,27 @@ class Show extends Authenticatable {
     }
 
     public function seasonEpisodes($season = null) {
-        return $this->episodes()->where('season_number', $season)->groupBy(DB::raw('episode_number'))->orderBy('first_aired')->get();
+        return $this->episodes()->where('season_number', $season)->groupBy('episode_number')->orderBy('episode_number')->get();
     }
 
     public function seasonEpisodesCount($season = null) {
-        return count(DB::table('episodes')->selectRaw('count(*)')->where('show_id', $this->id)->where('season_number', $season)->groupBy('episode_number')->get());
+        return $this->episodes()->where('season_number', $season)->max('episode_number');
     }
 
     public function lastSeason() {
-        return $this->hasMany('App\Episode')->max('season_number');
+        return $this->episodes()->max('season_number');
     }
 
     public function firstSeason() {
-        return $this->hasMany('App\Episode')->where('season_number', '>', 0)->min('season_number');
+        return $this->episodes()->where('season_number', '>', 0)->min('season_number');
     }
 
-    /**
-     * Get the object record associated with the object. - Defining The Inverse Of The Relationship
-     */
+    public function episodesCount() {
+        return $this->episodes()->where('season_number', '>', 0)->where('episode_number', '>', 0)->count();
+    }
+
+    /* Translations */
+
     public function translations() {
         return $this->hasMany('App\ShowTranslation');
     }
@@ -118,7 +121,8 @@ class Show extends Authenticatable {
         }
         return $translation;
     }
-    
+
+    /* Other */
 
     public function url($lang = null) {
         $lang = isset($lang) ? $lang : DEF_LANG;
@@ -149,14 +153,22 @@ class Show extends Authenticatable {
         return $this->morphToMany('App\Option', 'model', 'options_to_models', null, null)->where('select_id', '=', $select_id)->first();
     }
 
-    public function getFirstAiredAttribute() {
-        return date('Y', strtotime($this->attributes['first_aired']));
+    public function yearFirstAired() {
+        return date('Y', strtotime($this->first_aired));
     }
 
-    public function getLastAiredAttribute() {
+    public function yearLastAired() {
         if ($this->attributes['ended'] == true) {
             $lastEpisodeAired = DB::table('episodes')->where('show_id', $this->id)->max('first_aired');
             return date('Y', strtotime($lastEpisodeAired));
+        }
+        return '';
+    }
+
+    public function dateLastAired() {
+        if ($this->attributes['ended'] == true) {
+            $lastEpisodeAired = DB::table('episodes')->where('show_id', $this->id)->max('first_aired');
+            return date('Y-m-d', strtotime($lastEpisodeAired));
         }
         return '';
     }

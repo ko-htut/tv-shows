@@ -1,16 +1,16 @@
-<div class="col s6 m4 l2">
-    <a href="{{ $actor->url($layout['lang'])}}">
+<div class="col s6 m4 l2" itemprop="actor" itemscope itemtype="http://schema.org/Person">
+    <a itemprop="url" href="{{ $actor->url($layout['lang'])}}">
         <div class="card actor">
             <div class="card-image">
                 @if($actor->thumb() !== null)
-                <img src="{{ $actor->thumb()->src() }}"  alt="{{$actor->name}} ">
+                <img itemprop="image" src="{{ $actor->thumb()->src() }}" alt="{{$actor->name}}">
                 @else
-                <img src="{{$actor->placeholder()}}"  alt="placeholder">
+                <img itemprop="image" src="{{$actor->placeholder()}}" alt="placeholder">
                 @endif
             </div>
             <div class="card-content">
-                <span class="card-title truncate">{{$actor->name}}&nbsp;</span>
-                <span class="card-title truncate">{{$actor->role}}&nbsp;</span>
+                <span class="card-title truncate" itemprop="name">{{$actor->name}}</span>
+                <span class="card-title truncate" itemprop="alternateName">{{$actor->role}}&nbsp;</span>
             </div>
         </div>
     </a>

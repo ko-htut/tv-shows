@@ -36,19 +36,27 @@ class ActorsController extends LayoutController {
         return view('actors.index', compact(['actors']));
     }
 
-    public function detail($slug) {
-
-        $lang = 'cs';
+     public function detail($first = null, $second = null) {
+    
+        $lang = null;
+        $slug = null;
+        if (!empty($second)) {
+            $lang = $first;
+            $slug = $second;
+        } else {
+            $lang = DEF_LANG;
+            $slug = $first;
+        }
 
         $actors = Actor::where('slug', $slug)->get();
+        
         $actor = $actors[0];
         $ids = [];
         foreach ($actors as $a) {
             $ids[] = $a->id;
         }
 
-        $shows = Show::
-                join('actors_to_models as atm', 'atm.model_id', '=', 'shows.id')
+        $shows = Show::join('actors_to_models as atm', 'atm.model_id', '=', 'shows.id')
                 ->whereIn('atm.actor_id', $ids)
                 ->select('shows.*')
                 ->distinct('shows.id')
@@ -58,26 +66,6 @@ class ActorsController extends LayoutController {
         return view('actors.detail', compact(['actor', 'actors', 'shows']));
     }
 
-    public function detailTranslation($lang, $slug) {
-
-
-        $actors = Actor::where('slug', $slug)->get();
-        $actor = $actors[0];
-        $ids = [];
-        foreach ($actors as $a) {
-            $ids[] = $a->id;
-        }
-
-        $shows = Show::
-                join('actors_to_models as atm', 'atm.model_id', '=', 'shows.id')
-                ->whereIn('atm.actor_id', $ids)
-                ->select('shows.*')
-                ->distinct('shows.id')
-                ->get();
-
-
-        return view('actors.detail', compact(['actor', 'actors', 'shows']));
-    }
 
     public function updateSlugs() {
 

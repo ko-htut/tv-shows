@@ -6,9 +6,7 @@
                     <i class="material-icons button-collapse" data-activates="slide-out">menu</i>
                 </a>
             </li>
-
         </ul>
-
         <ul class="right">
             <li class="search hide-on-med-and-down">
                 <div class="input-field valign-wrapper">
@@ -23,7 +21,7 @@
                     <a href="{{route('users.edit', Auth::user()->id)}}"><span class="white-text name truncate">@if(Auth::user() !== null){{Auth::user()->username}}@endif</span></a>
                     <a href="{{route('users.edit', Auth::user()->id)}}"><span class="white-text email truncate">@if(Auth::user() !== null){{Auth::user()->email}}@endif</span></a>
                     @else
-                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><img class="circle" src="/storage/app/public/img/placeholders/user.png"></a>
+                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><img class="circle" src="/storage/app/public/img/placeholders/user.png" alt=""></a>
                     <a href="{{ url($layout['lang_prefix'] . '/login') }}"><span class="white-text">Přihlásit se</span></a>
                     @endif
                 </div>

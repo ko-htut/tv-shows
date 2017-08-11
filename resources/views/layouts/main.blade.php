@@ -5,9 +5,9 @@
         <title>@yield('meta_title', 'Televizní seriály - Seriálovna')</title>
         <meta name="description" content="@yield('meta_description')"> 
         <meta name="robots" content="index, follow" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
         <meta name="author" content="Jan Neterda" />
         <meta name="keywords" content="Televizní seriály, Televizní epizody, TV seriály" />
+        <meta name="viewport" content="width=device-width,initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="shortcut icon" href="/favicon.ico">
         <!-- CSS  -->
@@ -16,7 +16,7 @@
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css" />
-        <link href="<?php echo url('/'); ?>/public/css/app.css" type="text/css" rel="stylesheet" media="screen,projection">
+        <link href="<?php echo url('/'); ?>/public/css/app.css" type="text/css" rel="stylesheet" media="screen">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.0/css/lightgallery.min.css" />
         
         

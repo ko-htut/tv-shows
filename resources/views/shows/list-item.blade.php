@@ -1,18 +1,18 @@
-<div class="col s12 m6 l4">
+<div class="col s12 m6 @if(isset($detail) && $detail == true) l4 @else l4 @endif" itemscope itemtype="http://schema.org/TVSeries">
     <div class="card">
         <div class="card-image">
             @if($show->fanart() !== null)
             <div class="focus">
-                <img src="{{ $show->fanart()->getSrc(374) }}" class="focus" alt="{{$show->translation($layout['lang'])->title}} ">
+                <img itemprop="image" src="{{ $show->fanart()->getSrc(374)}}" class="focus" alt="{{$show->translation($layout['lang'])->title}}">
             </div>
             @endif
-            <a href="{{ $show->url($layout['lang'])}}"
+            <a itemprop="url" href="{{ $show->url($layout['lang'])}}"
                class="btn-floating halfway-fab waves-effect waves-light red">
                 <i class="material-icons">add</i>
             </a>
         </div>
         <div class="card-content">
-            <span class="card-title truncate">{{ $show->translation($layout['lang'])->title }}&nbsp;</span>
+            <span class="card-title truncate" itemprop="name">{{ $show->translation($layout['lang'])->title }}&nbsp;</span>
             <div class="row truncate">
                 <p class="truncate"></p>
             </div>
@@ -23,13 +23,13 @@
                         <i class="chip-icon material-icons">star_border</i>
                     </div>
                     @if($show->network() !== null)
-                    <div class="chip">
-                        {{ $show->network()->translation()->value }}
+                    <div class="chip" itemprop="productionCompany" itemscope itemtype="http://schema.org/Organization">
+                        <span itemprop="name">{{ $show->network()->translation()->value }}</span>
                         <i class="chip-icon material-icons">tv</i>
                     </div>
                     @endif
                     <div class="chip">
-                        {{ $show->runtime }} min
+                        {{ $show->runtime }}&nbsp;min
                         <i class="chip-icon material-icons">timer</i>
                     </div>
                 </div>
