@@ -2,7 +2,7 @@
 <ul class="collection comments">
     @foreach ($comments as $comment)
     <li class="collection-item avatar" itemprop="comment" itemscope itemtype="http://schema.org/UserComments">
-        <img class="circle" alt="" src="@if($comment->user->avatar !== null){{$comment->user->avatar->getSrc(64, 'thumb')}}@else{{$comment->user->avatarPlaceholder()}}@endif">
+        <img class="circle" alt="avatar" src="@if($comment->user->avatar !== null){{$comment->user->avatar->getSrc(64, 'thumb')}}@else{{$comment->user->avatarPlaceholder()}}@endif">
         <span class="username" itemprop="creator" >{{ $comment->user->username }}</span><br/>
         <span class="date" itemprop="commentTime">{{ $comment->updated_at }}</span>
         <p class="content" itemprop="commentText">{{$comment->content}}</p>

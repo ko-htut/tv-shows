@@ -20,19 +20,16 @@
             <form method="POST" action="{{ route('password.email') }}" class="valign-wrapper">
                 {{ csrf_field() }}
 
-
                 <div class="row">
-
                     <div class="input-field col s12 {{ $errors->has('email') ? ' invalid' : '' }}">
 
-                        <input id="email" placeholder="Email address" type="email" name="email" class="validate" value="{{ old('email') }}" required>
-                        <label for="email">Email</label>
+                        <input id="email" placeholder="@lang('strings.email_address')" type="email" name="email" class="validate" value="{{ old('email') }}" required>
+                        <label for="email">@lang('strings.email')</label>
                     </div>
-
 
                     <div class="col s12 center-align">
                         <button type="submit" class="btn login-submit blue darken-3">
-                            Send Password Reset Link
+                            @lang('strings.send_password_reset_link')
                         </button>
                     </div>
 
@@ -49,13 +46,13 @@
             
             <div class="col s12 center-align">
                 <a  href="{{ route('register') }}">
-                    Create an account
+                     @lang('strings.register')
                 </a>
             </div>
             
              <div class="col s12 center-align">
                 <a  href="{{ route('login') }}">
-                    Log in
+                     @lang('strings.login')
                 </a>
             </div>
 

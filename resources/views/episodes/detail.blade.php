@@ -18,7 +18,7 @@
             <a class="navigate prev" href="{{$episode->prev()->url($layout['lang'])}}"
                data-position="right"
                data-delay="50" 
-               data-tooltip="Předchozí">
+               data-tooltip="@lang('strings.prev')">
                 <i class="material-icons">navigate_before</i>
             </a>
             @endif
@@ -28,7 +28,7 @@
                href="{{$episode->next()->url($layout['lang'])}}"
                data-position="left"
                data-delay="50" 
-               data-tooltip="Další">
+               data-tooltip="@lang('strings.next')">
                 <i class="material-icons">navigate_next</i>
             </a>
             @endif
@@ -73,10 +73,12 @@
                 <i class="chip-icon material-icons">tv</i>
             </a>
             @endif
+            @if(App\Functions\Utils::validDate($episode->first_aired))
             <div class="chip">
                 <span itemprop="datePublished" data-date="{{ $episode->first_aired }}">{{ $episode->first_aired }}</span>
                 <i class="chip-icon material-icons">today</i>
             </div>
+            @endif
             <div class="chip">
                 <span itemprop="timeRequired">{{ $show->runtime }}</span> min
                 <i class="chip-icon material-icons">timer</i>
@@ -85,7 +87,7 @@
     </div>
 
     @if(isset($episode->imdb_id) || isset($episode->thetvdb_id))
-    <h3>Více na</h3>
+    <h3>@lang('strings.more_at')</h3>
     @if(isset($show->imdb_id))
     <div class="col s12">
         <a href="http://www.imdb.com/title/{{$episode->imdb_id}}/" target="_blank">Imdb.com</a>
@@ -97,7 +99,7 @@
     </div>
     @endif
     @endif
-    <h3>Komentáře</h3>
+    <h3>@lang('strings.comments')</h3>
     @include('components.comments.form', ['model' => $episode])
     @include('components.comments.display', ['comments' => $episode->comments])
 </div>

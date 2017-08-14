@@ -45,18 +45,14 @@ class ShowsController extends LayoutController {
         $next_page = $page + 1;
 
         $shows = new Show;
-        //Search
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
-            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
-            $shows = $shows->where('translation.title', 'LIKE', "%{$_GET['search']}%");
-            $shows = $shows->where('translation.lang', '=', $lang); ////All translations
-        }
+        
         //Terms
         if (isset($_GET['genre'])) {
             $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
             $shows = $shows->whereIn('ttm.term_id', $_GET['genre']);
         }
         //Options
+        /*
         $optionsKeys = ['network'];
         $options = [];
         foreach ($optionsKeys as $key) {
@@ -69,13 +65,22 @@ class ShowsController extends LayoutController {
                 $shows = $shows->whereIn("$key.option_id", $options);
             }
         }
+        */
 
         //Range
         if (isset($_GET['sMin']) && isset($_GET['sMax'])) {
             $shows = $shows->whereBetween('runtime', [$_GET['sMin'], $_GET['sMax']]);
         }
 
-        $shows = $shows->select('shows.*')->distinct('shows.id');
+        $shows = $shows->select(
+                DB::raw('(
+                        (SELECT count(*) FROM files WHERE model_id = shows.id AND type = "fanart" )/20 +
+                        (CASE WHEN translation.content IS NOT NULL THEN 3 ELSE 0 END) + 
+                        (CASE WHEN translation.title IS NOT NULL THEN 2 ELSE 0 END) + 
+                        (CASE WHEN ended = 0 THEN 6 ELSE 0 END)
+                        ) as weight, 
+                        shows.*'))
+                ->distinct('shows.id');
 
 
         $results = $shows->count('shows.id'); //'shows.id'
@@ -83,12 +88,18 @@ class ShowsController extends LayoutController {
         if (isset($_GET['order']) && !empty($_GET['order'])) {
             $shows = $shows->orderBy($_GET['order'], 'DESC');
         } else {
-            $shows->orderBy('ended', 'ASC');
-            //$shows->orderBy('id', 'DESC');
-        }
+            
+            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
+            $shows = $shows->where('lang', $lang);
 
+            $shows->orderBy('weight', 'desc');
+        }
+        //$shows = $shows->toSql();
+        //dd($shows);
 
         $shows = $shows->paginate($limit);
+        
+        
         $more = ceil($results / $limit) > $page ? true : false;
 
         //Filter
@@ -113,7 +124,7 @@ class ShowsController extends LayoutController {
     }
 
     public function detail($first = null, $second = null) {
-    
+
         $lang = null;
         $slug = null;
         if (!empty($second)) {
@@ -123,6 +134,7 @@ class ShowsController extends LayoutController {
             $lang = DEF_LANG;
             $slug = $first;
         }
+        
         
         if (!is_numeric($slug)) {
             $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')

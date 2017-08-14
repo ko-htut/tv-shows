@@ -20,6 +20,7 @@ class LayoutController extends Controller {
 
     public function __construct() {
 
+        
         $this->layout = [
             'lang' => isset(Route::current()->parameters['lang']) ? Route::current()->parameters['lang'] : 'cs',
             'lang_prefix' => isset(Route::current()->parameters['lang']) ? '/'.Route::current()->parameters['lang'] : '',
@@ -30,6 +31,7 @@ class LayoutController extends Controller {
             'options_counter' => DB::table('options_to_models')->select(DB::raw('option_id, count(*) as count'))->groupBy('option_id')->get()->keyBy('option_id')->toArray(),
         ];
         View::share('layout', $this->layout);
+        \App::setLocale($this->layout['lang']);
        
     }
 

@@ -97,11 +97,7 @@ Route::get('networks/{slug}', 'NetworksController@detail', function ($slug) {
 
 Route::resource('comments', 'CommentsController');
 Route::resource('users', 'UsersController');
-/*
-  Route::group(['middleware' => 'auth'], function() {
-  Route::resource('comments', 'CommentsController', ['only' => ['create', 'store', 'edit', 'update', 'destroy']]);
-  });
- */
+
 
 Auth::routes();
 

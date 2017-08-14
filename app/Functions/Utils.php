@@ -7,7 +7,6 @@ use App\Option;
 use App\OptionTranslation;
 use App\OptionPivot;
 use App\File;
-use App\FileTranslation;
 use App\TermType;
 use App\Term;
 use App\TermTranslation;
@@ -20,9 +19,7 @@ use Cocur\Slugify\Slugify;
  * @return string $address vraceny retezec obsahujici friendly url
  */
 class Utils {
-   
 
-   
     public static function isAjax() {
         return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ? true : false;
     }
@@ -61,14 +58,14 @@ class Utils {
 
 
         if ($actor['image']) {
-            
+
             //http://thetvdb.com/banners/_cache/actors/48836.jpg
-            
+
             $fileArr = [
                 'type' => 'thumb',
                 'extension' => 'jpg',
                 //'external_patch' => 'http://thetvdb.com/banners/' . $actor['image'],
-                'external_patch' => 'http://thetvdb.com/banners/_cache/actors/'.$actor['thetvdb_id'].'.jpg',
+                'external_patch' => 'http://thetvdb.com/banners/_cache/actors/' . $actor['thetvdb_id'] . '.jpg',
                 'model_id' => $actorId,
                 'model_type' => 'App\Actor',
                 'base64' => ''];
@@ -147,7 +144,7 @@ class Utils {
         }
     }
 
-    function compareFiles($file_a, $file_b) {
+    public static function compareFiles($file_a, $file_b) {
         if (filesize($file_a) == filesize($file_b)) {
 
             $fp_a = fopen($file_a, 'rb');
@@ -170,5 +167,7 @@ class Utils {
 
         return false;
     }
+
+    
 
 }

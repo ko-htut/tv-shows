@@ -36,6 +36,7 @@ class ShowTranslation extends Authenticatable {
     public function show() {
         return $this->belogsTo('App\Show');
     }
+    
 
     public function getSlug() {
         $slugify = new Slugify();

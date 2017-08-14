@@ -18,23 +18,23 @@
                 @foreach($actors as $a)
                 @if($a->thumb() !== null)
                 <a href="{{$a->thumb()->src()}}">
-                    Gelerie
+                    @lang('strings.galelry')
                 </a>
                 @endif
                 @endforeach
             </div>
         </div>
         <div class="col s12 m12 l10">
-            <h3>V seriálech</h3>
+            <h3>@lang('strings.in_shows')</h3>
             @foreach($shows as $show)
             @include('shows.list-item',  ['detail' => true])
             @endforeach
             <div class="col s12">
-                <h3>Více na</h3>
+                <h3>@lang('strings.more_at')</h3>
                 <a href="http://www.imdb.com/find?s=nm&q={{urlencode($actor->name)}}" target="_blank">Imdb.com</a>
             </div>
             <div class="col s12">
-                <h3>Komentáře</h3>
+                <h3>@lang('strings.comments')</h3>
                 @include('components.comments.form', ['model' => $actor])
                 @include('components.comments.display', ['comments' => $actor->comments])
             </div>

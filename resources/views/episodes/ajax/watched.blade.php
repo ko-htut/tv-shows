@@ -4,7 +4,7 @@
        data-history="false"
        data-position="bottom"
        data-delay="50" 
-       data-tooltip="{{$isWatched ? 'Odstranit ze zhlédnutých' : 'Zhlédnuto?'}}">
+       data-tooltip="{{$isWatched ? __('strings.remove_from_watched') : __('strings.watched')}}">
         <i class="material-icons">remove_red_eye</i>
     </a>
     <script>

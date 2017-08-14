@@ -9,12 +9,12 @@
         <input type="hidden" name="lang" value="{{ $layout['lang'] }}">
         <div class="row">
             <div class="input-field col s12">
-                <textarea id="content" name="content" placeholder="Sem napište svůj komentář..." class="materialize-textarea" data-length="500" required></textarea>
-                <label for="content">Komentář</label>
+                <textarea id="content" name="content" placeholder="@lang('strings.write_your_comment_here')" class="materialize-textarea" data-length="500" required></textarea>
+                <label for="content">@lang('strings.comment')</label>
             </div>
             <div class="col s12 right-align">
                 <button type="submit" class="btn blue darken-3 comment-submit">
-                    Vložit
+                    @lang('strings.insert')
                 </button>
             </div>
         </div>

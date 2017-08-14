@@ -43,18 +43,72 @@ class Episode extends Authenticatable {
     }
 
     public function translation($lang = null) {
+        /*
+          $lang = isset($lang) ? $lang : DEF_TRANSLATION;
+          $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', '=', $lang)->first();
+          if (!isset($translation) || !$translation->title) {
+          $translations = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->get();
+          foreach ($translations as $tr) {
+          if (!$tr->title) {
+          continue;
+          } else {
+          return $tr;
+          }
+          }
+          $translation->title = 'TBA';
+          }
+          return $translation;
+         */
         $lang = isset($lang) ? $lang : DEF_TRANSLATION;
-        $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', '=', $lang)->first();
-        if (!isset($translation) || !$translation->title) {
-            $translations = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->get();
-            foreach ($translations as $tr) {
-                if (!$tr->title) {
-                    continue;
-                } else {
-                    return $tr;
-                }
+        $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', $lang)->first();
+
+        $temp = [];
+
+        if (isset($translation)) {
+
+            if ($translation->title && $translation->content) {
+                return $translation;
             }
-            $translation->title = 'TBA';
+
+            if (!empty($translation->title)) {
+                $temp['title'] = $translation->title;
+            }
+
+            if (!empty($translation->content)) {
+                $temp['content'] = $translation->content;
+            }
+        }
+
+
+        $translations = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->get();
+        foreach ($translations as $tr) {
+
+            if (!$tr->title && !$tr->content) {
+                continue;
+            }
+
+            if (!isset($temp['title']) && !empty($tr->title)) {
+                $temp['title'] = $tr->title;
+            }
+
+            if (!isset($temp['content']) && !empty($tr->content)) {
+                $temp['content'] = $tr->content;
+            }
+
+            if (isset($temp['title']) && isset($temp['content'])) {
+                $tr->title = $temp['title'];
+                $tr->content = $temp['content'];
+                return $tr;
+            }
+        }
+
+        if (isset($translation)) {
+            $translation->title = isset($temp['title']) ? $temp['title'] : 'TBA';
+            $translation->content = isset($temp['content']) ? $temp['content'] : '...';
+        } else {
+            $translation = new EpisodeTranslation();
+            $translation->title = isset($temp['title']) ? $temp['title'] : 'TBA';
+            $translation->content = isset($temp['content']) ? $temp['content'] : '...';
         }
         return $translation;
     }

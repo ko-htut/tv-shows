@@ -36,6 +36,7 @@ class TermsController extends LayoutController {
             $lang = DEF_LANG;
             $slug = $first;
         }
+       
         
         $limit = 2 * 3 * 5;
         $page = isset($_GET['page']) ? $_GET['page'] : 1;

@@ -14,24 +14,22 @@
 
 
                 <div class="row">
-
                     <div class="input-field col s12 {{ $errors->has('email') ? ' invalid' : '' }}">
-                       
-                        <input id="email" placeholder="Email address" type="email" name="email" class="validate" value="{{ old('email') }}" required>
-                        <label for="email">Email</label>
+                        <input id="email" placeholder="@lang('strings.email_address')" type="email" name="email" class="validate" value="{{ old('email') }}" required>
+                        <label for="email">@lang('strings.email')</label>
                     </div>
 
 
                     <div class="input-field col s12 {{ $errors->has('passeword') ? ' invalid' : '' }}">
                        
-                        <input id="password" placeholder="Enter your password" type="password" name="password" class="validate" required>
-                        <label for="password">Password</label>
+                        <input id="password" placeholder="@lang('strings.enter_your_password')" type="password" name="password" class="validate" required>
+                        <label for="password">@lang('strings.password')</label>
                     </div>
 
 
                     <div class="col s12">
                         <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }} />
-                        <label for="remember">Remeber me</label>
+                        <label for="remember">@lang('strings.remember_me')</label>
                     </div>
 
 
@@ -39,7 +37,7 @@
 
                     <div class="col s12 center-align">
                         <button type="submit" class="btn login-submit blue darken-3">
-                            Log In
+                            @lang('strings.login')
                         </button>
                     </div>
 
@@ -62,13 +60,13 @@
 
             <div class="col s12 center-align">
                 <a  href="{{ route('password.request') }}">
-                    Forgot Your Password?
+                    @lang('strings.forgot_your_password')
                 </a>
             </div>
             
             <div class="col s12 center-align">
                 <a  href="{{ route('register') }}">
-                    Create an account.
+                    @lang('strings.create_an_account')
                 </a>
             </div>
 

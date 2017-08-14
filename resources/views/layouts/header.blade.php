@@ -1,5 +1,5 @@
 <nav>
-    <div class="nav-wrapper black">
+    <div class="nav-wrapper grey darken-4">
         <ul class="left">
             <li>
                 <a href="#!" class="">
@@ -10,7 +10,7 @@
         <ul class="right">
             <li class="search hide-on-med-and-down">
                 <div class="input-field valign-wrapper">
-                    <input id="search-input" type="search" placeholder="Vyledat seriály..."/>
+                    <input id="search-input" type="search" placeholder="@lang('strings.search_shows')"/>
                 </div>
             </li>
         </ul>
@@ -22,22 +22,22 @@
                     <a href="{{route('users.edit', Auth::user()->id)}}"><span class="white-text email truncate">@if(Auth::user() !== null){{Auth::user()->email}}@endif</span></a>
                     @else
                     <a href="{{ url($layout['lang_prefix'] . '/login') }}"><img class="circle" src="/storage/app/public/img/placeholders/user.png" alt=""></a>
-                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><span class="white-text">Přihlásit se</span></a>
+                    <a href="{{ url($layout['lang_prefix'] . '/login') }}"><span class="white-text">@lang('strings.login')</span></a>
                     @endif
                 </div>
             </li>
-            <li><a href="{{$layout['lang_prefix']}}/"><i class="material-icons smaller">explore</i>Seriály</a></li>
-            <li><a href="/calendar"><i class="material-icons smaller">today</i>Kalendář</a></li>
+            <li><a href="{{$layout['lang_prefix']}}/"><i class="material-icons smaller">explore</i>@lang('strings.shows')</a></li>
+            <li><a href="/calendar"><i class="material-icons smaller">today</i>@lang('strings.calendar')</a></li>
             @if($layout['genres'] !== null)
             <li>
                 <ul class="collapsible collapsible-accordion">
                     <li>
-                        <a class="collapsible-header waves-effect"><i class="material-icons smaller">styles</i>Žánry<i class="material-icons right">arrow_drop_down</i></a>
+                        <a class="collapsible-header waves-effect"><i class="material-icons smaller">styles</i>@lang('strings.genres')<i class="material-icons right">arrow_drop_down</i></a>
                         <div class="collapsible-body">
                             <ul>
                                 @foreach($layout['genres'] as $genre)
                                 @if($genre !== null)
-                                <li><a href="{{$layout['lang_prefix']}}/genres/{{ $genre->translation()->slug }}">{{ $genre->translation()->title }}<span class="counter">{{ $layout['genres_counter'][$genre->id]->count }}</span></a></li>
+                                <li><a href="{{$layout['lang_prefix']}}/genres/{{ $genre->translation()->slug }}">{{ __('terms.'.$genre->translation()->slug) }}<span class="counter">{{ $layout['genres_counter'][$genre->id]->count }}</span></a></li>
                                 @endif
                                 @endforeach
 
@@ -51,7 +51,7 @@
             <li>
                 <ul class="collapsible collapsible-accordion">
                     <li>
-                        <a class="collapsible-header waves-effect"><i class="material-icons smaller">tv</i>Televize<i class="material-icons right">arrow_drop_down</i></a>
+                        <a class="collapsible-header waves-effect"><i class="material-icons smaller">tv</i>@lang('strings.networks')<i class="material-icons right">arrow_drop_down</i></a>
                         <div class="collapsible-body">
                             <ul>
                                 @foreach($layout['networks'] as $network)
@@ -70,14 +70,14 @@
                 </ul>
             </li>
             @endif
-            <li><a href="{{$layout['lang_prefix']}}/actors/"><i class="material-icons smaller">supervisor_account</i>Herci</a></li>
+            <li><a href="{{$layout['lang_prefix']}}/actors/"><i class="material-icons smaller">supervisor_account</i>@lang('strings.actors')</a></li>
             <li><div class="divider"></div></li>
-            <li><a class="subheader">Ostatní</a></li>
+            <li><a class="subheader">@lang('strings.other')</a></li>
             <!--<li><a class="waves-effect" href="#"><i class="material-icons smaller">settings</i>Nastavení</a></li>-->
             <li>
                 <ul class="collapsible collapsible-accordion">
                     <li>
-                        <a class="collapsible-header waves-effect"><i class="material-icons smaller">language</i>Jazyk<i class="material-icons right">arrow_drop_down</i></a>
+                        <a class="collapsible-header waves-effect"><i class="material-icons smaller">language</i>@lang('strings.language')<i class="material-icons right">arrow_drop_down</i></a>
                         <div class="collapsible-body">
                             <ul>
                                 @foreach($layout['langs'] as $lang)
@@ -91,7 +91,7 @@
             @if(Auth::check())
             <li>
                 <a class="waves-effect" href="{{ route('logout') }}" onclick="event.preventDefault();
-                        document.getElementById('logout-form').submit();"><i class="material-icons smaller">lock</i>Odhlásit</a>
+                        document.getElementById('logout-form').submit();"><i class="material-icons smaller">lock</i>@lang('strings.logout')</a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">{{ csrf_field() }}</form>
             </li>
             @endif

@@ -3,7 +3,7 @@
 @section('meta_description', 'Televizní seriály, nadcházející epizody, televizní kalendář')
 
 @section('content')
-<h1>Televizní seriály</h1>
+<h1>@lang('strings.tv_shows')</h1>
 <form class="ajax" id="filter" action="GET">
      @include('shows.filter')
     <div class="row">

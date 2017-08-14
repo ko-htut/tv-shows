@@ -7,7 +7,9 @@
         " itemprop="episode" itemscope itemtype="http://schema.org/TVEpisode">
         <span class="hide-on-med-and-down"><i>S{{ $episode->season_number }}E<span itemprop="episodeNumber">{{ $episode->episode_number }}</span></i> - </span>
         <strong itemprop="name">{{ $episode->translation($layout['lang'])->title }}</strong> 
+        @if(App\Functions\Utils::validDate($episode->first_aired))
         <small class="hide-on-med-and-down" itemprop="releasedEvent" itemscope itemtype="http://schema.org/PublicationEvent" data-date="{{ $episode->first_aired }}"><span itemprop="startDate">{{ $episode->first_aired }}</span></small>
+        @endif
         <a itemprop="url" href="{{$episode->url($layout['lang'])}}"  class="secondary-content"><i class="material-icons">keyboard_arrow_right</i></a>
     </li>
     @endforeach  

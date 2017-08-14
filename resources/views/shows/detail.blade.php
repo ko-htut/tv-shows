@@ -25,7 +25,7 @@
         <div class="col s12 m12 l12">
             @foreach ($show->genres as $genre)
             <a href="{{$layout['lang_prefix']}}/genres/{{ $genre->translation()->slug }}" class="chip">
-                <span itemprop="genre">{{ $genre->translation()->title }}</span>
+                <span itemprop="genre">{{ __('terms.'.$genre->translation()->slug) }}</span>
             </a>
             @endforeach
             @if( $show->network() !== null)
@@ -54,15 +54,15 @@
     </div>
 
     @if($show->lastSeason() !== null && $show->firstSeason() !== null)
-    <h3>Série</h3>
+    <h3>@lang('strings.season')</h3>
     <meta itemprop="numberOfSeasons" content="{{$show->lastSeason()}}">
     <meta itemprop="numberOfEpisodes" content="{{$show->episodesCount()}}">
     <ul class="collapsible" data-collapsible="accordion">
         @for ($i = $show->lastSeason(); $i >= $show->firstSeason(); $i--)
         @if($show->seasonEpisodesCount($i) > 0)
         <li itemprop="season" itemscope itemtype="http://schema.org/TVSeason" id="season-{{ $i }}">
-            <div class="ajax collapsible-header @if($seasonNum == $i) active @endif" data-href="?season={{ $i }}"><span class="new badge" data-badge-caption="epizod" itemprop="numberOfEpisodes">{{ $show->seasonEpisodesCount($i) }}</span>
-                <a itemprop="url" href="?season={{ $i }}" class="ajax collection-item"><span itemprop="name">Série {{ $i }}</span></a>
+            <div class="ajax collapsible-header @if($seasonNum == $i) active @endif" data-href="?season={{ $i }}"><span class="new badge" data-badge-caption="{{trans_choice('strings.episode', $show->seasonEpisodesCount($i))}}" itemprop="numberOfEpisodes">{{ $show->seasonEpisodesCount($i) }}</span>
+                <a itemprop="url" href="?season={{ $i }}" class="ajax collection-item"><span itemprop="name">@lang('strings.season') {{ $i }}</span></a>
             </div>
             <div class="collapsible-body">
                 @if($seasonNum == $i)
@@ -77,23 +77,23 @@
     </ul>
     @endif
 
-    <h3>Galerie</h3>
+    <h3>@lang('strings.gallery')</h3>
     <div id="gallery">
         @foreach($gallery as $fanart)
         <a href="{{$fanart->src()}}">
-            Otevřít galerii
+            @lang('strings.open_gallery')
         </a>
         @endforeach
     </div>
 
-    <h3>Herci</h3>
+    <h3>@lang('strings.actors')</h3>
     <div class="row truncate">
         @foreach ($show->actorsLimit() as $actor)
         @include('actors.list-item')
         @endforeach
     </div>
 
-    <h3>Více na</h3>
+    <h3>@lang('strings.more_at')</h3>
     @if(isset($show->imdb_id))
     <div class="col s12">
         <a href="http://www.imdb.com/title/{{$show->imdb_id}}/" target="_blank">Imdb.com</a>
@@ -105,7 +105,7 @@
     </div>
     @endif
 
-    <h3>Komentáře</h3>
+    <h3>@lang('strings.comments')</h3>
     @include('components.comments.form', ['model' => $show])
     @include('components.comments.display', ['comments' => $show->comments])
 
