@@ -45,7 +45,9 @@ class ShowsController extends LayoutController {
         $next_page = $page + 1;
 
         $shows = new Show;
-        
+        $shows = $shows->join('shows_translations as translation', 'translation.show_id', 'shows.id');
+        $shows = $shows->where('lang', $lang);
+
         //Terms
         if (isset($_GET['genre'])) {
             $shows = $shows->join('terms_to_models as ttm', 'ttm.model_id', '=', 'shows.id');
@@ -53,53 +55,47 @@ class ShowsController extends LayoutController {
         }
         //Options
         /*
-        $optionsKeys = ['network'];
-        $options = [];
-        foreach ($optionsKeys as $key) {
-            if (isset($_GET[$key])) {
-                $shows = $shows->join("options_to_models as $key", "$key.model_id", "=", "shows.id");
-                $options = [];
-                foreach ($_GET[$key] as $value) {
-                    $options[] = $value;
-                }
-                $shows = $shows->whereIn("$key.option_id", $options);
-            }
-        }
-        */
+          $optionsKeys = ['network'];
+          $options = [];
+          foreach ($optionsKeys as $key) {
+          if (isset($_GET[$key])) {
+          $shows = $shows->join("options_to_models as $key", "$key.model_id", "=", "shows.id");
+          $options = [];
+          foreach ($_GET[$key] as $value) {
+          $options[] = $value;
+          }
+          $shows = $shows->whereIn("$key.option_id", $options);
+          }
+          }
+         */
 
         //Range
         if (isset($_GET['sMin']) && isset($_GET['sMax'])) {
             $shows = $shows->whereBetween('runtime', [$_GET['sMin'], $_GET['sMax']]);
         }
-
-        $shows = $shows->select(
-                DB::raw('(
-                        (SELECT count(*) FROM files WHERE model_id = shows.id AND type = "fanart" )/20 +
-                        (CASE WHEN translation.content IS NOT NULL THEN 3 ELSE 0 END) + 
-                        (CASE WHEN translation.title IS NOT NULL THEN 2 ELSE 0 END) + 
-                        (CASE WHEN ended = 0 THEN 6 ELSE 0 END)
-                        ) as weight, 
-                        shows.*'))
-                ->distinct('shows.id');
-
-
-        $results = $shows->count('shows.id'); //'shows.id'
+        $results = $shows->count('shows.id');
+        
         //Order
         if (isset($_GET['order']) && !empty($_GET['order'])) {
-            $shows = $shows->orderBy($_GET['order'], 'DESC');
+            $shows = $shows->select('shows.*')->distinct('shows.id');
+            $shows = $shows->orderBy('shows.'.$_GET['order'], 'desc');
         } else {
             
-            $shows = $shows->join('shows_translations as translation', 'translation.show_id', '=', 'shows.id');
-            $shows = $shows->where('lang', $lang);
-
+            $shows = $shows->select(
+                            DB::raw('(
+                        ROUND( 0.5 * rating + 10*(1 - 0.5) * (1 - POW(2.7, -rating_count/500) ), 1 )  + 
+                        (CASE WHEN (SELECT count(*) FROM files WHERE model_id = shows.id AND type = "fanart" ) > 30 THEN 1 ELSE 0 END) +
+                        (CASE WHEN translation.content IS NOT NULL THEN 4 ELSE 0 END) + 
+                        (CASE WHEN translation.title IS NOT NULL THEN 2 ELSE 0 END) + 
+                        (CASE WHEN ended = 0 THEN 5 ELSE 0 END)
+                        ) as weight,
+                        shows.*'))
+                    ->distinct('shows.id');
             $shows->orderBy('weight', 'desc');
         }
-        //$shows = $shows->toSql();
-        //dd($shows);
-
         $shows = $shows->paginate($limit);
-        
-        
+
+
         $more = ceil($results / $limit) > $page ? true : false;
 
         //Filter
@@ -134,8 +130,8 @@ class ShowsController extends LayoutController {
             $lang = DEF_LANG;
             $slug = $first;
         }
-        
-        
+
+
         if (!is_numeric($slug)) {
             $show = Show::join('shows_translations as translation', 'translation.show_id', '=', 'shows.id')
                     ->where('slug', '=', $slug)

@@ -30,6 +30,10 @@ class Episode extends Authenticatable {
     /**
      * Get the object record associated with the object. - Defining The Inverse Of The Relationship
      */
+    public function show() {
+        return $this->belongsTo('App\Show');
+    }
+
     public function translations() {
         return $this->hasMany('App\EpisodeTranslation');
     }
@@ -43,22 +47,6 @@ class Episode extends Authenticatable {
     }
 
     public function translation($lang = null) {
-        /*
-          $lang = isset($lang) ? $lang : DEF_TRANSLATION;
-          $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', '=', $lang)->first();
-          if (!isset($translation) || !$translation->title) {
-          $translations = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->get();
-          foreach ($translations as $tr) {
-          if (!$tr->title) {
-          continue;
-          } else {
-          return $tr;
-          }
-          }
-          $translation->title = 'TBA';
-          }
-          return $translation;
-         */
         $lang = isset($lang) ? $lang : DEF_TRANSLATION;
         $translation = $this->hasMany('App\EpisodeTranslation', 'episode_id', 'id')->where('lang', $lang)->first();
 
@@ -175,6 +163,10 @@ class Episode extends Authenticatable {
                     ->first();
         }
         return $prev;
+    }
+
+    public function number() {
+        return 'S' . str_pad($this->season_number, 2, '0', STR_PAD_LEFT) . 'E' . str_pad($this->episode_number, 2, '0', STR_PAD_LEFT);
     }
 
 }

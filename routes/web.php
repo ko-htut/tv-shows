@@ -66,6 +66,10 @@ Route::group(['prefix' => '{lang}'], function() {
     Route::get('actors', 'ActorsController@index', function ($lang) {
         
     });
+    
+    Route::get('calendar', 'PagesController@calendar');
+    
+    
     Route::get('actors/{slug}', 'ActorsController@detail', function ($lang, $slug) {
         
     });

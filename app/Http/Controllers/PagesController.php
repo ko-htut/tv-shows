@@ -10,12 +10,12 @@ class PagesController extends LayoutController {
     public function calendar() {
         
 
-        $start = date('Y-m-d', strToTime('-3 days'));
+        $start = date('Y-m-d', strToTime('-1 days'));
         $end = date('Y-m-d', strToTime('+3 days'));
+        $episodes = Episode::whereBetween('first_aired', [$start, $end])->distinct()->orderBy('first_aired')->get();
         
-        $episodes = Episode::whereBetween('first_aired', [$start, $end])->orderBy('first_aired')->get();
-        
-        dd($episodes);
+        return view('pages.calendar.calendar', compact(['episodes']));
+       
     }
 
 }

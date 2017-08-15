@@ -545,3 +545,63 @@ ul.collapsible li:hover{
     opacity:1;
 }
 
+.calendar-item{
+
+}
+
+.calendar-item .card-content{
+
+    padding: 5px 0 2px 0;
+    text-align: center;
+    background-color: #fbfbfb;
+    border: 1px solid #ddd;
+
+}
+
+.calendar-item .card-content hr{
+    border: 0;
+    height: 1px;
+    background: #ddd;
+}
+.calendar-item .card-content .episode-number{
+    color: #444;
+    font-size: 16px;
+    margin: 0px auto;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+}
+
+.calendar-item .card-content .episode-number:hover{
+    color: #000;
+}
+
+.calendar-item .card-content .show-name{
+    color: #777;
+    font-size: 12px;
+    margin: 2px auto;
+    font-weight: normal;
+    display: block;
+    width: 100%;
+}
+
+.calendar-item .card-content .show-name:hover{
+    color:#222;
+  
+}
+
+
+.calendar-item .card-content .more{
+    color: #777;
+    font-size: 12px;
+    margin: -2px 0px 2px 0px;
+}
+
+.calendar-item .card-content .network{
+     color: #777;
+}
+
+.calendar-item .card-content .network:hover{
+    color:#222;
+    
+}

@@ -12,7 +12,7 @@ define('DB_PORT', '3306');
 define('DEF_LANG', 'cs');
 define('DEF_TRANSLATION', 'en');
 
-if ( stripos($_SERVER['SERVER_NAME'], 'serialovna.cz') !== false) {
+if (isset($_SERVER['SERVER_NAME']) && stripos($_SERVER['SERVER_NAME'], 'serialovna.cz') !== false) {
     define('APP_URL', 'http://www.serialovna.cz');
     define('DB_HOST', 'wm110.wedos.net');
     define('DB_DATABASE', 'd164792_tvshows');
@@ -93,7 +93,7 @@ return [
       | to any of the locales which will be supported by the application.
       |
      */
-    'locale' => 'en', 
+    'locale' => 'en',
     /*
       |--------------------------------------------------------------------------
       | Application Fallback Locale
@@ -131,18 +131,16 @@ return [
      */
     'log' => APP_LOG,
     'log_level' => APP_LOG_LEVEL,
-
     /*
-    |--------------------------------------------------------------------------
-    | Autoloaded Service Providers
-    |--------------------------------------------------------------------------
-    |
-    | The service providers listed here will be automatically loaded on the
-    | request to your application. Feel free to add your own services to
-    | this array to grant expanded functionality to your applications.
-    |
-    */
-
+      |--------------------------------------------------------------------------
+      | Autoloaded Service Providers
+      |--------------------------------------------------------------------------
+      |
+      | The service providers listed here will be automatically loaded on the
+      | request to your application. Feel free to add your own services to
+      | this array to grant expanded functionality to your applications.
+      |
+     */
     'providers' => [
 
         /*
@@ -170,12 +168,10 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-
         /*
          * Package Service Providers...
          */
         Laravel\Tinker\TinkerServiceProvider::class,
-
         /*
          * Application Service Providers...
          */
@@ -184,22 +180,24 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class, 
+        /* Vendors */
+        /* Great images */
+        Intervention\Image\ImageServiceProvider::class,
+        /* Good sitemap */
         Roumen\Sitemap\SitemapServiceProvider::class,
-
+        /* Html minify */
+       
     ],
-
     /*
-    |--------------------------------------------------------------------------
-    | Class Aliases
-    |--------------------------------------------------------------------------
-    |
-    | This array of class aliases will be registered when this application
-    | is started. However, feel free to register as many as you wish as
-    | the aliases are "lazy" loaded so they don't hinder performance.
-    |
-    */
-
+      |--------------------------------------------------------------------------
+      | Class Aliases
+      |--------------------------------------------------------------------------
+      |
+      | This array of class aliases will be registered when this application
+      | is started. However, feel free to register as many as you wish as
+      | the aliases are "lazy" loaded so they don't hinder performance.
+      |
+     */
     'aliases' => [
 
         'App' => Illuminate\Support\Facades\App::class,
@@ -235,9 +233,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Image' => Intervention\Image\Facades\Image::class
+        'Image' => Intervention\Image\Facades\Image::class,
         
-
     ],
-
 ];

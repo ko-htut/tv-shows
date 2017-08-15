@@ -12,7 +12,7 @@
             </a>
         </div>
         <div class="card-content">
-            <span class="card-title truncate" itemprop="name">{{ $show->translation($layout['lang'])->title }}&nbsp;</span>
+            <span class="card-title truncate" itemprop="name">{{ $show->translation($layout['lang'])->title }}</span>
             <div class="row truncate">
                 <p class="truncate"></p>
             </div>
